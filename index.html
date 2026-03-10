@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LARAS | Find Your Balance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════ */
+    :root {
+      --bg:          #f4efe9;
+      --panel:       #fbf8f4;
+      --ink:         #4f433d;
+      --muted:       #8b7b70;
+      --line:        #e6ddd4;
+      --accent:      #b78852;
+      --accent-dark: #8c673d;
+      --dark:        #2a1f18;
+      --jeda-c:      #f3ece2;
+      --temu-c:      #55674b;
+      --pulang-c:    #b87437;
+      --rintik-c:    #8ea4ae;
+      --shadow:      0 18px 40px rgba(79,67,61,.08);
+      --shadow-md:   0 28px 60px rgba(79,67,61,.14);
+      --radius:      24px;
+      --radius-sm:   16px;
+      --ease:        cubic-bezier(.25,.46,.45,.94);
+      --ease-o:      cubic-bezier(.16,1,.3,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      cursor: none;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ═══════════════════════════════════════
+       CURSOR
+    ═══════════════════════════════════════ */
+    #cur {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .3s var(--ease-o), height .3s var(--ease-o);
+      mix-blend-mode: multiply;
+    }
+    #cur-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      opacity: .5;
+      transition: width .4s var(--ease-o), height .4s var(--ease-o), opacity .3s;
+    }
+    #cur.hov { width: 6px; height: 6px; }
+    #cur-ring.hov { width: 56px; height: 56px; opacity: .15; }
+    @media (hover: none) { #cur, #cur-ring { display: none; } body { cursor: auto; } }
+
+    /* ═══════════════════════════════════════
+       GRAIN
+    ═══════════════════════════════════════ */
+    .grain {
+      position: fixed; inset: 0; pointer-events: none; z-index: 9990; opacity: .022;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ═══════════════════════════════════════
+       UTILS
+    ═══════════════════════════════════════ */
+    .shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow {
+      font-family: Jost, sans-serif;
+      font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+
+    /* ═══════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════ */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(14px) saturate(1.3);
+      background: rgba(244,239,233,.88);
+      border-bottom: 1px solid rgba(230,221,212,.75);
+      transition: box-shadow .3s;
+    }
+    .site-header.lifted { box-shadow: 0 4px 24px rgba(79,67,61,.07); }
+    .nav {
+      display: flex; justify-content: space-between; align-items: center;
+      min-height: 74px; gap: 24px;
+    }
+    .brand { font-size: 1.9rem; letter-spacing: .1em; color: var(--ink); font-family: Georgia, serif; }
+    .nav-links {
+      display: flex; gap: 28px; list-style: none; padding: 0; margin: 0;
+      font-family: Jost, sans-serif; font-size: .88rem; color: var(--muted);
+    }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .btn-nav {
+      font-family: Jost, sans-serif; font-size: .78rem; letter-spacing: .1em;
+      text-transform: uppercase; padding: 9px 20px; border-radius: 999px;
+      border: 1px solid transparent; cursor: pointer; transition: all .22s;
+    }
+    .btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+    .btn-ghost:hover { background: rgba(255,255,255,.7); }
+    .btn-solid { background: var(--accent); color: #fff; box-shadow: 0 6px 16px rgba(183,136,82,.25); }
+    .btn-solid:hover { background: var(--accent-dark); }
+
+    /* hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 8px; background: none; border: none;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--ink); border-radius: 2px;
+      transition: all .3s var(--ease);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* mobile nav drawer */
+    .mobile-nav {
+      display: none; position: fixed; inset: 74px 0 0; z-index: 99;
+      background: rgba(244,239,233,.97); backdrop-filter: blur(20px);
+      padding: 40px 32px;
+      flex-direction: column; gap: 8px;
+      transform: translateY(-12px); opacity: 0;
+      transition: opacity .3s var(--ease-o), transform .3s var(--ease-o);
+      pointer-events: none;
+    }
+    .mobile-nav.open {
+      display: flex; opacity: 1; transform: none; pointer-events: all;
+    }
+    .mobile-nav a {
+      font-family: Jost, sans-serif; font-size: 1.1rem; font-weight: 400;
+      color: var(--ink); padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--accent); }
+    .mobile-nav-auth { display: flex; gap: 10px; margin-top: 24px; }
+
+    /* ═══════════════════════════════════════
+       MARQUEE STRIP
+    ═══════════════════════════════════════ */
+    .strip {
+      background: var(--dark); overflow: hidden;
+      padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .strip-track {
+      display: flex; white-space: nowrap;
+      animation: marquee 32s linear infinite;
+    }
+    .strip-track:hover { animation-play-state: paused; }
+    .strip-item {
+      font-family: Georgia, serif; font-size: .92rem; font-style: italic;
+      color: rgba(201,168,130,.75); padding: 0 44px;
+      display: inline-flex; align-items: center; gap: 44px;
+    }
+    .strip-item::after { content: '∘'; font-style: normal; font-size: .5rem; color: var(--accent); opacity: .7; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero { padding: 72px 0 52px; }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.1fr .9fr;
+      gap: 32px; align-items: stretch;
+    }
+    .hero-copy { padding: 24px 0; }
+    .hero h1 {
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: .97; margin: 0 0 20px; font-weight: 500;
+    }
+    .hero p {
+      font-family: Jost, sans-serif; font-size: 1.05rem;
+      color: var(--muted); max-width: 540px; margin: 0 0 32px; line-height: 1.72;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 48px; padding: 0 26px; border-radius: 999px;
+      border: 1px solid transparent; cursor: pointer;
+      font-family: Jost, sans-serif; font-size: .9rem; font-weight: 400;
+      transition: all .22s; letter-spacing: .04em;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 22px rgba(183,136,82,.3); }
+    .btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 12px 28px rgba(183,136,82,.35); }
+    .btn-secondary { background: transparent; border-color: var(--line); color: var(--ink); }
+    .btn-secondary:hover { background: rgba(255,255,255,.7); }
+
+    .hero-card {
+      background: linear-gradient(155deg, #ece3d9 0%, #f8f3ee 100%);
+      border-radius: 32px; padding: 36px;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.6);
+      display: grid; align-content: space-between;
+      min-height: 500px; position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute;
+      top: -60px; right: -60px; width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(183,136,82,.12), transparent 68%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-card h3 { margin: 0 0 10px; font-weight: 500; font-size: 1.15rem; }
+    .hero-card .micro { font-family: Jost, sans-serif; font-size: .88rem; color: var(--muted); line-height: 1.65; }
+    .hero-ritual {
+      background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.75);
+      border-radius: 20px; padding: 20px 20px 16px;
+    }
+
+    /* ═══════════════════════════════════════
+       SECTION
+    ═══════════════════════════════════════ */
+    .section { padding: 52px 0 36px; }
+    .section-lg { padding: 72px 0 56px; }
+
+    /* ═══════════════════════════════════════
+       STORY
+    ═══════════════════════════════════════ */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .panel, .quote-box, .result-box, .quiz-wrap {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .panel, .quote-box, .result-box { padding: 32px; }
+    .quiz-wrap { padding: 32px 28px; }
+    .panel h2 { margin: 0 0 14px; font-weight: 500; font-size: 1.4rem; line-height: 1.25; }
+    .panel p, .result-box p, .quote-box p {
+      font-family: Jost, sans-serif; font-size: .93rem;
+      color: var(--muted); margin: 0; line-height: 1.72;
+    }
+    .story-points {
+      font-family: Jost, sans-serif; font-size: .93rem;
+      color: var(--muted); margin: 16px 0 0; padding-left: 18px;
+    }
+    .story-points li + li { margin-top: 10px; }
+    .quote-box {
+      background: linear-gradient(160deg, rgba(255,255,255,.85), rgba(245,238,231,.95));
+    }
+    .quote-box strong {
+      display: block; font-size: 1.12rem; margin-bottom: 14px; font-weight: 500; line-height: 1.4;
+    }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-section {
+      background: var(--dark); padding: 72px 0;
+    }
+    .how-inner { text-align: center; margin-bottom: 56px; }
+    .how-inner h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 400;
+      color: #f4ede5; margin: 0 0 14px;
+    }
+    .how-inner p {
+      font-family: Jost, sans-serif; font-size: .95rem;
+      color: rgba(244,237,229,.5); max-width: 460px; margin: 0 auto; line-height: 1.7;
+    }
+    .how-eyebrow { color: var(--accent); margin-bottom: 12px; }
+    .how-steps {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 2px;
+    }
+    .how-step {
+      background: rgba(255,255,255,.04); padding: 44px 36px;
+      border: 1px solid rgba(255,255,255,.06);
+      position: relative; transition: background .3s;
+    }
+    .how-step:hover { background: rgba(255,255,255,.07); }
+    .how-step-num {
+      font-family: Georgia, serif; font-size: 3.5rem; font-weight: 400;
+      color: rgba(183,136,82,.18); line-height: 1;
+      margin-bottom: 20px; display: block;
+    }
+    .how-step h3 {
+      font-size: 1.15rem; font-weight: 400; color: #f4ede5;
+      margin: 0 0 12px; line-height: 1.2;
+    }
+    .how-step p {
+      font-family: Jost, sans-serif; font-size: .88rem;
+      color: rgba(244,237,229,.46); line-height: 1.7; margin: 0;
+    }
+    .how-step-icon {
+      width: 44px; height: 44px; margin-bottom: 24px;
+      border: 1px solid rgba(183,136,82,.25); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .how-step-icon svg { width: 20px; stroke: var(--accent); fill: none; }
+
+    /* ═══════════════════════════════════════
+       COLLECTION (cinematic dark cards)
+    ═══════════════════════════════════════ */
+    .collection-section { padding: 64px 0 52px; }
+    .collection-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 28px;
+    }
+    .collection-header h2 { font-size: clamp(1.7rem,3vw,2.5rem); font-weight: 500; margin: 0; }
+    .collection-header p {
+      font-family: Jost, sans-serif; font-size: .88rem;
+      color: var(--muted); max-width: 220px; text-align: right; line-height: 1.6;
+    }
+    .collection-scroll { overflow-x: auto; scrollbar-width: none; }
+    .collection-scroll::-webkit-scrollbar { display: none; }
+    .collection-track {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 2px; min-width: 680px;
+    }
+    .scent-card {
+      position: relative; overflow: hidden; cursor: pointer;
+      background: #1a1008;
+    }
+    .scent-card-img { aspect-ratio: 3/4; overflow: hidden; }
+    .scent-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 1s var(--ease), filter .45s;
+      filter: brightness(.8) saturate(.95);
+    }
+    .scent-card:hover .scent-card-img img { transform: scale(1.08); filter: brightness(1) saturate(1); }
+    /* colour accent line per scent */
+    .scent-accent {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 3;
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .55s var(--ease-o);
+    }
+    .scent-card:hover .scent-accent { transform: scaleX(1); }
+    .sc-jeda   .scent-accent { background: linear-gradient(to right, #e8ddd0, #c9b8a2); }
+    .sc-temu   .scent-accent { background: linear-gradient(to right, #7a9a6e, var(--temu-c)); }
+    .sc-pulang .scent-accent { background: linear-gradient(to right, #d4924e, var(--pulang-c)); }
+    .sc-rintik .scent-accent { background: linear-gradient(to right, #aabfc8, var(--rintik-c)); }
+    .scent-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,5,2,.94) 0%, rgba(10,5,2,.1) 55%, transparent 100%);
+    }
+    .scent-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 26px 22px; }
+    .scent-num {
+      font-family: Jost, sans-serif; font-size: .62rem; font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase; color: rgba(212,165,90,.8); margin-bottom: 5px;
+    }
+    .scent-name {
+      font-size: 1.65rem; font-weight: 400; color: #faf6ef; line-height: 1; margin-bottom: 5px;
+    }
+    .scent-tagline {
+      font-family: Jost, sans-serif; font-size: .74rem; font-weight: 300;
+      color: rgba(250,246,239,.5); margin-bottom: 12px; line-height: 1.4;
+    }
+    .scent-notes-reveal {
+      font-family: Jost, sans-serif; font-size: .73rem; font-style: italic;
+      color: rgba(212,165,90,.9);
+      opacity: 0; transform: translateY(7px);
+      transition: opacity .35s, transform .35s;
+    }
+    .scent-card:hover .scent-notes-reveal { opacity: 1; transform: none; }
+    .scent-arrow {
+      position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+      border-radius: 50%; border: 1px solid rgba(250,246,239,.15);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.65); transition: opacity .28s, transform .28s;
+    }
+    .scent-arrow svg { width: 14px; stroke: #faf6ef; fill: none; }
+    .scent-card:hover .scent-arrow { opacity: 1; transform: scale(1); }
+    /* "View details" label that slides up */
+    .scent-view-label {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
+      background: rgba(183,136,82,.92); backdrop-filter: blur(4px);
+      text-align: center; padding: 13px;
+      font-family: Jost, sans-serif; font-size: .72rem; font-weight: 500;
+      letter-spacing: .14em; text-transform: uppercase; color: #fff;
+      transform: translateY(100%); transition: transform .32s var(--ease-o);
+    }
+    .scent-card:hover .scent-view-label { transform: none; }
+
+    /* ═══════════════════════════════════════
+       PRODUCT DRAWER
+    ═══════════════════════════════════════ */
+    .drawer-backdrop {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(42,31,24,.55); backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s;
+    }
+    .drawer-backdrop.open { opacity: 1; pointer-events: all; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 501;
+      width: min(480px, 100vw);
+      background: var(--panel);
+      box-shadow: -20px 0 80px rgba(42,31,24,.18);
+      transform: translateX(100%);
+      transition: transform .45s var(--ease-o);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .drawer.open { transform: none; }
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 28px; border-bottom: 1px solid var(--line); flex-shrink: 0;
+    }
+    .drawer-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--line); background: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .2s; color: var(--ink);
+    }
+    .drawer-close:hover { background: var(--line); }
+    .drawer-close svg { width: 14px; stroke: currentColor; fill: none; }
+    .drawer-scent-badge {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .drawer-badge-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .drawer-badge-name {
+      font-family: Jost, sans-serif; font-size: .75rem; font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 0 0 32px; }
+    .drawer-img {
+      width: 100%; aspect-ratio: 4/3; overflow: hidden; background: var(--jeda-c);
+    }
+    .drawer-img img { width: 100%; height: 100%; object-fit: cover; }
+    .drawer-content { padding: 28px 28px 0; }
+    .drawer-name {
+      font-size: 2.2rem; font-weight: 400; margin: 0 0 4px; line-height: 1;
+    }
+    .drawer-meaning {
+      font-family: Jost, sans-serif; font-size: .88rem;
+      color: var(--accent); font-style: italic; margin-bottom: 18px;
+    }
+    .drawer-desc {
+      font-family: Jost, sans-serif; font-size: .92rem;
+      color: var(--muted); line-height: 1.78; margin-bottom: 26px;
+    }
+    .drawer-divider { height: 1px; background: var(--line); margin: 0 0 24px; }
+    .drawer-row {
+      display: flex; justify-content: space-between;
+      font-family: Jost, sans-serif; font-size: .82rem; margin-bottom: 10px;
+    }
+    .drawer-row-label { color: var(--muted); }
+    .drawer-row-val { color: var(--ink); font-weight: 400; }
+    .drawer-notes-wrap { margin: 20px 0 0; }
+    .drawer-notes-label {
+      font-family: Jost, sans-serif; font-size: .7rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    }
+    .drawer-notes { display: flex; flex-wrap: wrap; gap: 8px; }
+    .drawer-note {
+      padding: 7px 14px; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff;
+      font-family: Jost, sans-serif; font-size: .82rem; color: var(--ink);
+    }
+    .drawer-ritual { margin: 28px 28px 0; }
+    .drawer-ritual-title {
+      font-family: Jost, sans-serif; font-size: .7rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+    }
+    .drawer-ritual-steps { display: flex; flex-direction: column; gap: 14px; }
+    .drawer-ritual-step {
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .drawer-ritual-step-num {
+      font-family: Georgia, serif; font-size: 1.1rem; font-style: italic;
+      color: rgba(183,136,82,.35); flex-shrink: 0; width: 20px; padding-top: 1px;
+    }
+    .drawer-ritual-step-text {
+      font-family: Jost, sans-serif; font-size: .86rem;
+      color: var(--muted); line-height: 1.65;
+    }
+    .drawer-footer {
+      padding: 20px 28px; border-top: 1px solid var(--line); flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .btn-drawer-main {
+      width: 100%; min-height: 52px;
+      background: var(--accent); color: #fff; border: none; border-radius: 999px;
+      font-family: Jost, sans-serif; font-size: .88rem; font-weight: 500;
+      letter-spacing: .08em; cursor: pointer;
+      transition: background .25s, transform .2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-drawer-main:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .btn-drawer-sec {
+      width: 100%; min-height: 46px;
+      background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px;
+      font-family: Jost, sans-serif; font-size: .84rem; cursor: pointer;
+      transition: background .22s;
+    }
+    .btn-drawer-sec:hover { background: rgba(255,255,255,.8); }
+
+    /* ═══════════════════════════════════════
+       RITUAL SETS
+    ═══════════════════════════════════════ */
+    .sets-section { padding: 52px 0 56px; }
+    .sets-section h2 { font-size: clamp(1.7rem,3vw,2.5rem); font-weight: 500; margin: 0 0 28px; }
+    /* reuse .two-col + scent-card styling */
+
+    /* ═══════════════════════════════════════
+       ASSESSMENT
+    ═══════════════════════════════════════ */
+    .assessment-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.15fr) minmax(300px,.85fr);
+      align-items: start; gap: 28px;
+    }
+    .quiz-wrap h2 { font-size: 1.5rem; font-weight: 500; margin: 0 0 6px; line-height: 1.25; }
+    .progress-wrap { margin-bottom: 22px; }
+    .progress-label {
+      font-family: Jost, sans-serif; font-size: .72rem; color: var(--muted);
+      display: flex; justify-content: space-between; margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 2px; background: var(--line); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent); border-radius: 2px; width: 0%;
+      transition: width .4s var(--ease-o);
+    }
+    .question-block + .question-block { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .question-title { font-size: 1rem; margin: 0 0 14px; font-weight: 500; line-height: 1.35; }
+    .options { display: grid; gap: 10px; }
+    .option { position: relative; }
+    .option input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+    .option label {
+      display: flex; align-items: center; gap: 13px; padding: 13px 16px;
+      border-radius: var(--radius-sm); border: 1px solid var(--line); background: #fff;
+      color: var(--ink); transition: all .2s; cursor: pointer;
+      font-family: Jost, sans-serif; font-size: .88rem; line-height: 1.4;
+    }
+    .option label::before {
+      content: ''; flex-shrink: 0; width: 14px; height: 14px;
+      border: 1px solid rgba(183,136,82,.4); border-radius: 50%; transition: all .2s;
+    }
+    .option input:checked + label { border-color: rgba(183,136,82,.55); background: rgba(183,136,82,.07); }
+    .option input:checked + label::before { background: var(--accent); border-color: var(--accent); }
+    .option label:hover { border-color: rgba(183,136,82,.3); background: rgba(183,136,82,.04); }
+
+    .result-box { position: sticky; top: 96px; min-height: 480px; }
+    .result-tag {
+      display: inline-flex; align-items: center;
+      min-height: 30px; padding: 0 12px; border-radius: 999px;
+      background: rgba(183,136,82,.1); color: var(--accent-dark);
+      font-family: Jost, sans-serif; font-size: .78rem; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .result-box h3 { margin: 0 0 10px; font-weight: 500; font-size: 1.2rem; }
+    .result-product {
+      margin-top: 18px; padding: 18px; border-radius: 18px;
+      background: #fff; border: 1px solid var(--line);
+    }
+    .result-product h4 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 500; }
+    .result-product p { font-family: Jost, sans-serif; font-size: .86rem; color: var(--muted); line-height: 1.65; }
+    .notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .note-chip {
+      padding: 7px 12px; border-radius: 999px;
+      background: rgba(79,67,61,.06); color: var(--muted);
+      font-family: Jost, sans-serif; font-size: .84rem;
+    }
+
+    /* ═══════════════════════════════════════
+       TESTIMONIALS
+    ═══════════════════════════════════════ */
+    .testimonials-section {
+      background: var(--panel); padding: 72px 0; border-top: 1px solid var(--line);
+    }
+    .testi-header { text-align: center; margin-bottom: 48px; }
+    .testi-header h2 { font-size: clamp(1.5rem,2.5vw,2.2rem); font-weight: 400; margin: 0; }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+    }
+    .testi-card {
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 28px;
+    }
+    .testi-stars {
+      display: flex; gap: 4px; margin-bottom: 14px;
+    }
+    .testi-stars span {
+      font-size: .8rem; color: var(--accent);
+    }
+    .testi-text {
+      font-family: Jost, sans-serif; font-size: .9rem;
+      color: var(--ink); line-height: 1.75; margin: 0 0 18px;
+      font-style: italic;
+    }
+    .testi-meta { display: flex; align-items: center; gap: 10px; }
+    .testi-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--line); display: flex; align-items: center; justify-content: center;
+      font-family: Georgia, serif; font-size: .88rem; color: var(--muted);
+    }
+    .testi-name {
+      font-family: Jost, sans-serif; font-size: .82rem; font-weight: 500; color: var(--ink);
+    }
+    .testi-scent {
+      font-family: Jost, sans-serif; font-size: .76rem; color: var(--accent);
+    }
+
+    /* ═══════════════════════════════════════
+       VISION
+    ═══════════════════════════════════════ */
+    .vision-section { padding: 56px 0 72px; }
+    .footer-grid-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .footer-card {
+      background: var(--dark); color: #f4ede5;
+      border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow-md);
+    }
+    .footer-card h3 { margin: 0 0 16px; font-weight: 400; font-size: 1.3rem; }
+    .footer-card p { font-family: Jost, sans-serif; color: rgba(244,237,229,.6); font-size: .9rem; margin: 0 0 18px; line-height: 1.7; }
+    .footer-card ul {
+      padding-left: 0; margin: 0; list-style: none;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .footer-card li {
+      font-family: Jost, sans-serif; font-size: .88rem;
+      color: rgba(244,237,229,.6); line-height: 1.55;
+      padding-left: 16px; position: relative;
+    }
+    .footer-card li::before { content: '–'; position: absolute; left: 0; color: var(--accent); }
+
+    /* ═══════════════════════════════════════
+       NEWSLETTER
+    ═══════════════════════════════════════ */
+    .newsletter-section {
+      background: var(--dark); padding: 72px 0;
+      text-align: center;
+    }
+    .newsletter-inner { max-width: 540px; margin: 0 auto; }
+    .newsletter-inner h2 {
+      font-size: clamp(1.7rem,3vw,2.5rem); font-weight: 400;
+      color: #f4ede5; margin: 0 0 12px;
+    }
+    .newsletter-inner p {
+      font-family: Jost, sans-serif; font-size: .92rem;
+      color: rgba(244,237,229,.48); margin: 0 0 32px; line-height: 1.7;
+    }
+    .newsletter-form {
+      display: flex; gap: 0;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,.06);
+    }
+    .newsletter-input {
+      flex: 1; padding: 14px 22px;
+      background: transparent; border: none; outline: none;
+      font-family: Jost, sans-serif; font-size: .9rem;
+      color: #f4ede5;
+    }
+    .newsletter-input::placeholder { color: rgba(244,237,229,.3); }
+    .newsletter-btn {
+      padding: 14px 28px; background: var(--accent); border: none;
+      font-family: Jost, sans-serif; font-size: .82rem; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: #fff; cursor: pointer; transition: background .25s; border-radius: 0 999px 999px 0;
+    }
+    .newsletter-btn:hover { background: var(--accent-dark); }
+    .newsletter-note {
+      font-family: Jost, sans-serif; font-size: .76rem;
+      color: rgba(244,237,229,.28); margin-top: 14px;
+    }
+
+    /* ═══════════════════════════════════════
+       FOOTER BAR
+    ═══════════════════════════════════════ */
+    .footer-bar {
+      background: #1a110a; padding: 28px 0;
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .footer-bar-inner {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 10px; }
+    .footer-brand-name { font-family: Georgia, serif; font-size: 1.1rem; letter-spacing: .1em; color: rgba(244,237,229,.5); }
+    .footer-links-bar {
+      display: flex; gap: 24px; list-style: none; padding: 0; margin: 0;
+    }
+    .footer-links-bar a {
+      font-family: Jost, sans-serif; font-size: .78rem;
+      color: rgba(244,237,229,.3); transition: color .2s;
+    }
+    .footer-links-bar a:hover { color: rgba(244,237,229,.7); }
+    .footer-copy { font-family: Jost, sans-serif; font-size: .75rem; color: rgba(244,237,229,.22); }
+
+    /* ═══════════════════════════════════════
+       AUTH MODAL
+    ═══════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(20,12,8,.72);
+      backdrop-filter: blur(10px); z-index: 600;
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--panel); width: 100%; max-width: 430px;
+      border-radius: var(--radius); overflow: hidden; position: relative;
+      animation: mIn .35s var(--ease-o);
+      box-shadow: var(--shadow-md);
+    }
+    @keyframes mIn { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
+    .modal-head {
+      background: var(--dark); padding: 34px 34px 26px; text-align: center;
+    }
+    .modal-logo { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 18px; }
+    .modal-logo svg { width: 22px; }
+    .modal-logo span { font-family: Georgia, serif; font-size: 1.1rem; letter-spacing: .12em; color: #f4ede5; }
+    .modal-title { font-size: 1.65rem; font-weight: 400; color: #f4ede5; margin-bottom: 6px; }
+    .modal-subtitle { font-family: Jost, sans-serif; font-size: .8rem; color: rgba(244,237,229,.46); line-height: 1.6; }
+    .modal-body { padding: 26px 32px 32px; }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-family: Jost, sans-serif; font-size: .68rem;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%; padding: 12px 15px; border: 1px solid var(--line);
+      border-radius: 10px; background: var(--bg);
+      font-family: Jost, sans-serif; font-size: .9rem; color: var(--ink); outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: rgba(183,136,82,.55); }
+    .field input::placeholder { color: var(--muted); opacity: .5; }
+    .modal-submit {
+      width: 100%; font-family: Jost, sans-serif; font-size: .8rem;
+      letter-spacing: .12em; text-transform: uppercase; padding: 14px;
+      background: var(--dark); border: none; border-radius: 10px; color: var(--bg);
+      cursor: pointer; transition: background .25s; margin-top: 4px;
+    }
+    .modal-submit:hover { background: var(--accent); }
+    .modal-toggle {
+      text-align: center; margin-top: 16px;
+      font-family: Jost, sans-serif; font-size: .82rem; color: var(--muted);
+    }
+    .modal-toggle a { color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+    .modal-close {
+      position: absolute; top: 12px; right: 16px; background: none; border: none;
+      cursor: pointer; color: rgba(244,237,229,.35); font-size: 1.5rem; line-height: 1; transition: color .2s;
+    }
+    .modal-close:hover { color: #f4ede5; }
+
+    /* ═══════════════════════════════════════
+       CART INDICATOR
+    ═══════════════════════════════════════ */
+    .cart-btn {
+      position: relative;
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--line); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .22s;
+    }
+    .cart-btn:hover { background: rgba(255,255,255,.7); }
+    .cart-btn svg { width: 16px; stroke: var(--ink); fill: none; }
+    .cart-badge {
+      position: absolute; top: -4px; right: -4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      font-family: Jost, sans-serif; font-size: .6rem; font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      transform: scale(0); transition: transform .25s var(--ease-o);
+      border: 1.5px solid var(--bg);
+    }
+    .cart-badge.show { transform: scale(1); }
+
+    /* ═══════════════════════════════════════
+       HERO CANDLE FLOAT
+    ═══════════════════════════════════════ */
+    .hero-candle-float {
+      position: absolute; bottom: 36px; right: 36px;
+      width: 110px;
+      animation: float 4s ease-in-out infinite;
+      pointer-events: none; opacity: .88;
+    }
+    .hero-candle-float img { width: 100%; filter: drop-shadow(0 16px 28px rgba(79,67,61,.18)); }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+
+    /* ═══════════════════════════════════════
+       INGREDIENT SPOTLIGHT
+    ═══════════════════════════════════════ */
+    .ingredients-section { padding: 72px 0; background: var(--panel); border-top: 1px solid var(--line); }
+    .ingredients-intro { max-width: 620px; margin-bottom: 48px; }
+    .ingredients-intro h2 { font-size: clamp(1.8rem,3vw,2.6rem); font-weight: 500; margin: 0 0 14px; line-height: 1.15; }
+    .ingredients-intro p { font-family: Jost, sans-serif; font-size: .95rem; color: var(--muted); line-height: 1.75; margin: 0; }
+    .ingredients-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+    }
+    .ingredient-card {
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 28px 22px 24px;
+      transition: transform .3s var(--ease), box-shadow .3s;
+      cursor: default;
+    }
+    .ingredient-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .ingredient-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .ingredient-origin {
+      font-family: Jost, sans-serif; font-size: .68rem; font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .ingredient-name {
+      font-size: 1.2rem; font-weight: 500; margin-bottom: 8px; line-height: 1.1;
+    }
+    .ingredient-local {
+      font-family: Jost, sans-serif; font-size: .8rem; font-style: italic;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .ingredient-desc {
+      font-family: Jost, sans-serif; font-size: .84rem; color: var(--muted);
+      line-height: 1.68; margin: 0;
+    }
+    .ingredient-used {
+      margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+      font-family: Jost, sans-serif; font-size: .74rem; color: var(--accent);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ingredient-used::before { content: '◦'; }
+
+    /* ═══════════════════════════════════════
+       JOURNAL / EDITORIAL
+    ═══════════════════════════════════════ */
+    .journal-section { padding: 64px 0 72px; }
+    .journal-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 32px;
+    }
+    .journal-header h2 { font-size: clamp(1.7rem,3vw,2.4rem); font-weight: 500; margin: 0; }
+    .journal-header a {
+      font-family: Jost, sans-serif; font-size: .82rem; color: var(--accent);
+      display: flex; align-items: center; gap: 6px; transition: gap .2s;
+    }
+    .journal-header a:hover { gap: 10px; }
+    .journal-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 20px; }
+    .journal-card {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden;
+      cursor: pointer; transition: transform .3s var(--ease), box-shadow .3s;
+    }
+    .journal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .journal-img {
+      aspect-ratio: 16/9; overflow: hidden; background: var(--warm, #e5d8c3);
+    }
+    .journal-img-tall { aspect-ratio: 4/3; }
+    .journal-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+    .journal-card:hover .journal-img img { transform: scale(1.04); }
+    .journal-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; opacity: .3;
+    }
+    .journal-body { padding: 22px 22px 20px; }
+    .journal-cat {
+      font-family: Jost, sans-serif; font-size: .68rem; font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+    }
+    .journal-title {
+      font-size: 1.08rem; font-weight: 500; line-height: 1.25;
+      margin: 0 0 8px; color: var(--ink);
+    }
+    .journal-excerpt {
+      font-family: Jost, sans-serif; font-size: .84rem; color: var(--muted);
+      line-height: 1.65; margin: 0 0 14px;
+    }
+    .journal-meta {
+      font-family: Jost, sans-serif; font-size: .74rem; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .journal-meta::before { content: '—'; color: var(--line); }
+
+    /* ═══════════════════════════════════════
+       FULL FOOTER
+    ═══════════════════════════════════════ */
+    .site-footer {
+      background: var(--dark); padding: 72px 0 0;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+    .site-footer-grid {
+      display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr;
+      gap: 48px; padding-bottom: 56px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sf-brand { }
+    .sf-brand-name {
+      font-family: Georgia, serif; font-size: 1.6rem; letter-spacing: .1em;
+      color: rgba(244,237,229,.85); margin-bottom: 14px;
+    }
+    .sf-brand-desc {
+      font-family: Jost, sans-serif; font-size: .86rem; color: rgba(244,237,229,.35);
+      line-height: 1.75; max-width: 240px; margin-bottom: 24px;
+    }
+    .sf-social { display: flex; gap: 10px; }
+    .sf-social-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; background: transparent;
+    }
+    .sf-social-btn:hover { border-color: rgba(183,136,82,.5); background: rgba(183,136,82,.1); }
+    .sf-social-btn svg { width: 14px; stroke: rgba(244,237,229,.5); fill: none; }
+    .sf-col-head {
+      font-family: Jost, sans-serif; font-size: .7rem; font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(244,237,229,.4); margin-bottom: 18px;
+    }
+    .sf-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 11px; }
+    .sf-col a {
+      font-family: Jost, sans-serif; font-size: .86rem;
+      color: rgba(244,237,229,.38); transition: color .2s;
+    }
+    .sf-col a:hover { color: rgba(244,237,229,.8); }
+    .site-footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px; padding: 22px 0;
+    }
+    .sf-copy {
+      font-family: Jost, sans-serif; font-size: .75rem; color: rgba(244,237,229,.2);
+    }
+    .sf-legal { display: flex; gap: 20px; }
+    .sf-legal a {
+      font-family: Jost, sans-serif; font-size: .75rem; color: rgba(244,237,229,.2);
+      transition: color .2s;
+    }
+    .sf-legal a:hover { color: rgba(244,237,229,.5); }
+
+    /* ═══════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════ */
+    .fade-up {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .75s var(--ease-o), transform .75s var(--ease-o);
+    }
+    .fade-up.visible { opacity: 1; transform: none; }
+    .fade-up.d1 { transition-delay: .1s; } .fade-up.d2 { transition-delay: .2s; }
+    .fade-up.d3 { transition-delay: .3s; } .fade-up.d4 { transition-delay: .42s; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 980px) {
+      .hero-grid, .two-col, .assessment-grid, .footer-grid-inner { grid-template-columns: 1fr; }
+      .result-box { position: static; min-height: auto; }
+      .collection-track { grid-template-columns: repeat(2,1fr); }
+      .how-steps { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .ingredients-grid { grid-template-columns: repeat(2,1fr); }
+      .journal-grid { grid-template-columns: 1fr; }
+      .site-footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .hero-candle-float { width: 80px; bottom: 20px; right: 20px; }
+    }
+    @media (max-width: 680px) {
+      .ingredients-grid { grid-template-columns: 1fr 1fr; }
+      .site-footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .sf-brand-desc { max-width: 100%; }
+      .site-footer-bottom { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(calc(100% - 32px), 1180px); }
+      .hero { padding: 48px 0 36px; }
+      .panel, .quote-box, .result-box, .quiz-wrap { padding: 22px 20px; }
+      .hero-card { padding: 26px; min-height: auto; }
+      .hero h1 { font-size: 2.5rem; }
+      .collection-track { grid-template-columns: 1fr 1fr; }
+      .newsletter-form { flex-direction: column; border-radius: var(--radius-sm); }
+      .newsletter-input { padding: 14px 18px; }
+      .newsletter-btn { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+      .footer-bar-inner { flex-direction: column; text-align: center; gap: 10px; }
+      .footer-links-bar { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ════════════════════════════════════
+     HEADER
+════════════════════════════════════ -->
+<header class="site-header" id="siteHeader">
+  <div class="shell nav">
+    <a class="brand" href="#top">LARAS</a>
+    <ul class="nav-links">
+      <li><a href="#story">Story</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#scents">Collection</a></li>
+      <li><a href="#assessment">Assessment</a></li>
+      <li><a href="#ingredients">Ingredients</a></li>
+      <li><a href="#journal">Journal</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="btn-nav btn-ghost" id="navSignin" onclick="openModal('signin')">Sign in</button>
+      <button class="btn-nav btn-solid" id="navJoin" onclick="openModal('signup')">Join LARAS</button>
+      <div id="navUserMenu" style="display:none;align-items:center;gap:10px;">
+        <span style="font-family:Jost,sans-serif;font-size:.84rem;color:var(--muted);">Hi, <strong id="navUserName" style="color:var(--ink);font-weight:500;"></strong></span>
+        <button class="btn-nav btn-ghost" onclick="handleSignOut()" style="padding:7px 16px;font-size:.76rem;">Sign out</button>
+      </div>
+      <button class="cart-btn" id="cartBtn" onclick="openCart()" aria-label="Ritual list">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- mobile nav -->
+<nav class="mobile-nav" id="mobileNav">
+  <a href="#story" onclick="toggleMenu()">Story</a>
+  <a href="#how" onclick="toggleMenu()">How it works</a>
+  <a href="#scents" onclick="toggleMenu()">Collection</a>
+  <a href="#assessment" onclick="toggleMenu()">Assessment</a>
+  <a href="#ingredients" onclick="toggleMenu()">Ingredients</a>
+  <a href="#journal" onclick="toggleMenu()">Journal</a>
+  <div class="mobile-nav-auth">
+    <button class="btn-nav btn-ghost" style="flex:1;" onclick="openModal('signin');toggleMenu()">Sign in</button>
+    <button class="btn-nav btn-solid" style="flex:1;" onclick="openModal('signup');toggleMenu()">Join LARAS</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════
+     MARQUEE
+════════════════════════════════════ -->
+<div class="strip" aria-hidden="true">
+  <div class="strip-track">
+    <span class="strip-item">Jeda — Pause</span>
+    <span class="strip-item">Pulang — Comfort</span>
+    <span class="strip-item">Temu Diri — Return to Self</span>
+    <span class="strip-item">Rintik — Renewal</span>
+    <span class="strip-item">Locally-rooted ritual self-care</span>
+    <span class="strip-item">Jeda — Pause</span>
+    <span class="strip-item">Pulang — Comfort</span>
+    <span class="strip-item">Temu Diri — Return to Self</span>
+    <span class="strip-item">Rintik — Renewal</span>
+    <span class="strip-item">Locally-rooted ritual self-care</span>
+  </div>
+</div>
+
+<main id="top">
+
+  <!-- ════════════════════════════════════
+       HERO
+  ════════════════════════════════════ -->
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div class="hero-copy fade-up">
+        <div class="eyebrow">Premium Indonesian ritual self-care</div>
+        <h1>Find the scent that feels like your story.</h1>
+        <p>LARAS helps you choose more intentional self-care through a guided scent assessment rooted in balance, emotional needs, and Indonesian-inspired ritual.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#assessment">Take the assessment</a>
+          <a class="btn btn-secondary" href="#scents">Explore the collection</a>
+        </div>
+      </div>
+      <div class="hero-card fade-up d2">
+        <div>
+          <div class="eyebrow">What LARAS means</div>
+          <h3>Balance, harmony, and being in tune.</h3>
+          <p class="micro">Laras is the Indonesian word for being aligned, grounded, and in tune with yourself — not just resting, but truly returning.</p>
+        </div>
+        <div class="hero-ritual">
+          <div class="eyebrow">Start with intention</div>
+          <h3>Not just a candle. A ritual of return.</h3>
+          <p class="micro">Four signatures, each built around a different emotional need. Take the assessment to find yours — or explore all four.</p>
+        </div>
+        <div class="hero-candle-float">
+          <img src="images/signature_candle.png" alt="LARAS signature candle">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       STORY
+  ════════════════════════════════════ -->
+  <section class="section" id="story">
+    <div class="shell two-col">
+      <article class="panel fade-up">
+        <div class="eyebrow">Why this brand exists</div>
+        <h2>Most self-care products offer comfort, but not connection.</h2>
+        <p>Urban professional women are constantly managing pressure, overstimulation, and emotional fatigue — yet most self-care products only offer surface-level comfort instead of helping them feel grounded and reconnected.</p>
+        <ul class="story-points">
+          <li>Self-care is often passive, aesthetic, and generic.</li>
+          <li>Different people carry different stories, needs, and struggles.</li>
+          <li>Fragrance becomes more meaningful when it feels guided and emotionally true.</li>
+        </ul>
+      </article>
+      <aside class="quote-box fade-up d2">
+        <strong>LARAS transforms self-care into an intentional ritual through premium Indonesian products that combine locally rooted ingredients, emotional scent storytelling, and thoughtful design.</strong>
+        <p>The long-term vision is bigger than candles: helping people reconnect with themselves, find balance, and choose rituals that feel personal to their own story.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       HOW IT WORKS
+  ════════════════════════════════════ -->
+  <section class="how-section" id="how">
+    <div class="shell">
+      <div class="how-inner fade-up">
+        <div class="eyebrow how-eyebrow">The Ritual</div>
+        <h2>Three steps to your ritual.</h2>
+        <p>LARAS isn't a product you buy once. It's a practice you return to — guided by where you actually are, not where you think you should be.</p>
+      </div>
+      <div class="how-steps">
+        <div class="how-step fade-up d1">
+          <div class="how-step-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <span class="how-step-num">01</span>
+          <h3>Take the assessment</h3>
+          <p>Five honest questions about how you're actually feeling. Not how you want to feel — how you are. Your answers map to one of four emotional states.</p>
+        </div>
+        <div class="how-step fade-up d2">
+          <div class="how-step-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.3"><path d="M12 22c5.5-4 9-7.8 9-11.8A9 9 0 0 0 3 10.2C3 14.2 6.5 18 12 22z"/></svg>
+          </div>
+          <span class="how-step-num">02</span>
+          <h3>Receive your signature</h3>
+          <p>We recommend the LARAS scent that best reflects your emotional need right now — with a personal description of why it fits this season of your life.</p>
+        </div>
+        <div class="how-step fade-up d3">
+          <div class="how-step-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <span class="how-step-num">03</span>
+          <h3>Begin your ritual</h3>
+          <p>Each candle arrives with a ritual guide — a simple, intentional practice for lighting it. Not a routine, but a return. A moment that belongs only to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       COLLECTION
+  ════════════════════════════════════ -->
+  <section class="collection-section" id="scents">
+    <div class="shell">
+      <div class="collection-header fade-up">
+        <div>
+          <div class="eyebrow">The Collection</div>
+          <h2>Four signatures, four emotional truths.</h2>
+        </div>
+        <p>Click any scent to explore its full ritual profile.</p>
+      </div>
+      <div class="collection-scroll">
+        <div class="collection-track">
+
+          <article class="scent-card sc-jeda fade-up" onclick="openDrawer('jeda')">
+            <div class="scent-accent"></div>
+            <div class="scent-card-img"><img src="images/jeda_new.png" alt="Jeda — Pause"></div>
+            <div class="scent-overlay"></div>
+            <div class="scent-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            <div class="scent-info">
+              <div class="scent-num">01</div>
+              <div class="scent-name">Jeda</div>
+              <div class="scent-tagline">A soft pause for rest and stillness</div>
+              <div class="scent-notes-reveal">Melati Jawa · White Tea · Cendana Bali</div>
+            </div>
+            <div class="scent-view-label">View ritual profile →</div>
+          </article>
+
+          <article class="scent-card sc-temu fade-up d1" onclick="openDrawer('temu')">
+            <div class="scent-accent"></div>
+            <div class="scent-card-img"><img src="images/temu_diri_new.png" alt="Temu Diri — Return to self"></div>
+            <div class="scent-overlay"></div>
+            <div class="scent-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            <div class="scent-info">
+              <div class="scent-num">02</div>
+              <div class="scent-name">Temu Diri</div>
+              <div class="scent-tagline">A grounding ritual for return to self</div>
+              <div class="scent-notes-reveal">Nilam · Vetiver · Sedap Malam</div>
+            </div>
+            <div class="scent-view-label">View ritual profile →</div>
+          </article>
+
+          <article class="scent-card sc-pulang fade-up d2" onclick="openDrawer('pulang')">
+            <div class="scent-accent"></div>
+            <div class="scent-card-img"><img src="images/pulang_new.png" alt="Pulang — Comfort"></div>
+            <div class="scent-overlay"></div>
+            <div class="scent-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            <div class="scent-info">
+              <div class="scent-num">03</div>
+              <div class="scent-name">Pulang</div>
+              <div class="scent-tagline">Warmth, comfort, and emotional ease</div>
+              <div class="scent-notes-reveal">Vanilla Pandan · Kayu Manis · Kenanga</div>
+            </div>
+            <div class="scent-view-label">View ritual profile →</div>
+          </article>
+
+          <article class="scent-card sc-rintik fade-up d3" onclick="openDrawer('rintik')">
+            <div class="scent-accent"></div>
+            <div class="scent-card-img"><img src="images/rintik_new.png" alt="Rintik — Renewal"></div>
+            <div class="scent-overlay"></div>
+            <div class="scent-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            <div class="scent-info">
+              <div class="scent-num">04</div>
+              <div class="scent-name">Rintik</div>
+              <div class="scent-tagline">A light, refreshing moment of renewal</div>
+              <div class="scent-notes-reveal">Serai · Bergamot · Bamboo Leaf</div>
+            </div>
+            <div class="scent-view-label">View ritual profile →</div>
+          </article>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       RITUAL SETS
+  ════════════════════════════════════ -->
+  <section class="sets-section" id="sets">
+    <div class="shell">
+      <div class="eyebrow fade-up">Ritual Sets</div>
+      <h2 class="fade-up d1">Curated for giving — or keeping.</h2>
+      <div class="two-col">
+        <article class="scent-card sc-pulang fade-up" style="border-radius:var(--radius);overflow:hidden;" onclick="openModal('signup')">
+          <div class="scent-accent"></div>
+          <div class="scent-card-img" style="aspect-ratio:16/9;">
+            <img src="images/ritual_bundle_new.png" alt="The Ritual Bundle" style="height:100%;">
+          </div>
+          <div class="scent-overlay"></div>
+          <div class="scent-info">
+            <div class="scent-num">Complete Collection</div>
+            <div class="scent-name" style="font-size:1.5rem;">The Ritual Bundle</div>
+            <div class="scent-tagline">All four signatures. The full emotional range of LARAS.</div>
+          </div>
+          <div class="scent-view-label">Notify me when available →</div>
+        </article>
+        <article class="scent-card sc-jeda fade-up d2" style="border-radius:var(--radius);overflow:hidden;" onclick="openModal('signup')">
+          <div class="scent-accent"></div>
+          <div class="scent-card-img" style="aspect-ratio:16/9;">
+            <img src="images/mini_set_new.png" alt="The Mini Set" style="height:100%;">
+          </div>
+          <div class="scent-overlay"></div>
+          <div class="scent-info">
+            <div class="scent-num">Discovery Set</div>
+            <div class="scent-name" style="font-size:1.5rem;">The Mini Set</div>
+            <div class="scent-tagline">Three signatures to begin your ritual.</div>
+          </div>
+          <div class="scent-view-label">Notify me when available →</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       ASSESSMENT
+  ════════════════════════════════════ -->
+  <section class="section-lg" id="assessment">
+    <div class="shell assessment-grid">
+      <div class="quiz-wrap fade-up">
+        <div class="eyebrow">Scent Assessment</div>
+        <h2>What do you need most right now?</h2>
+        <p class="micro" style="margin:4px 0 20px;">Five questions. Answer honestly — not with who you want to be, but with who you are today.</p>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Your progress</span>
+            <span id="progressCount">0 / 5</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <form id="quizForm">
+          <div class="question-block">
+            <p class="question-title">1. When you wake up in the morning, your first feeling is usually —</p>
+            <div class="options">
+              <div class="option"><input id="q1a" type="radio" name="q1" value="jeda" required><label for="q1a">Tired before the day has even started</label></div>
+              <div class="option"><input id="q1b" type="radio" name="q1" value="pulang"><label for="q1b">A quiet longing — for something warm and familiar</label></div>
+              <div class="option"><input id="q1c" type="radio" name="q1" value="temu"><label for="q1c">Disconnected, like I'm going through the motions</label></div>
+              <div class="option"><input id="q1d" type="radio" name="q1" value="rintik"><label for="q1d">Restless — like something needs to change</label></div>
+            </div>
+          </div>
+          <div class="question-block">
+            <p class="question-title">2. The emotion you carry most quietly right now is —</p>
+            <div class="options">
+              <div class="option"><input id="q2a" type="radio" name="q2" value="jeda" required><label for="q2a">Exhaustion — the kind that sleep doesn't fix</label></div>
+              <div class="option"><input id="q2b" type="radio" name="q2" value="pulang"><label for="q2b">A low, tender ache — grief, nostalgia, or loneliness</label></div>
+              <div class="option"><input id="q2c" type="radio" name="q2" value="temu"><label for="q2c">A sense of being lost — unsure of who I am right now</label></div>
+              <div class="option"><input id="q2d" type="radio" name="q2" value="rintik"><label for="q2d">Frustration — I feel stuck and can't move forward</label></div>
+            </div>
+          </div>
+          <div class="question-block">
+            <p class="question-title">3. The kind of space that feels most healing to you —</p>
+            <div class="options">
+              <div class="option"><input id="q3a" type="radio" name="q3" value="jeda" required><label for="q3a">Soft, quiet, still — a place with no demands</label></div>
+              <div class="option"><input id="q3b" type="radio" name="q3" value="pulang"><label for="q3b">Warm and familiar — like someone's kitchen or childhood home</label></div>
+              <div class="option"><input id="q3c" type="radio" name="q3" value="temu"><label for="q3c">Grounded and earthy — a forest floor, a quiet garden</label></div>
+              <div class="option"><input id="q3d" type="radio" name="q3" value="rintik"><label for="q3d">Open and clean — cool air, wide sky, room to breathe</label></div>
+            </div>
+          </div>
+          <div class="question-block">
+            <p class="question-title">4. If your body could speak right now, it would ask for —</p>
+            <div class="options">
+              <div class="option"><input id="q4a" type="radio" name="q4" value="jeda" required><label for="q4a">Permission to do nothing at all</label></div>
+              <div class="option"><input id="q4b" type="radio" name="q4" value="pulang"><label for="q4b">To be held — physically, emotionally, unconditionally</label></div>
+              <div class="option"><input id="q4c" type="radio" name="q4" value="temu"><label for="q4c">To feel like itself again — anchored and present</label></div>
+              <div class="option"><input id="q4d" type="radio" name="q4" value="rintik"><label for="q4d">Movement — a shift, a release, something new</label></div>
+            </div>
+          </div>
+          <div class="question-block">
+            <p class="question-title">5. In this season of your life, you are most seeking —</p>
+            <div class="options">
+              <div class="option"><input id="q5a" type="radio" name="q5" value="jeda" required><label for="q5a">Rest — deep, genuine, guiltless rest</label></div>
+              <div class="option"><input id="q5b" type="radio" name="q5" value="pulang"><label for="q5b">Comfort — warmth, safety, and emotional ease</label></div>
+              <div class="option"><input id="q5c" type="radio" name="q5" value="temu"><label for="q5c">Clarity — a return to myself, my values, my centre</label></div>
+              <div class="option"><input id="q5d" type="radio" name="q5" value="rintik"><label for="q5d">Renewal — a fresh chapter, a light beginning</label></div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:28px;">
+            <button class="btn btn-primary" type="submit">See my recommendation</button>
+            <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="result-box fade-up d2" id="resultBox">
+        <span class="result-tag">Your recommendation</span>
+        <h3 id="resultTitle">Begin here.</h3>
+        <p id="resultDescription" style="font-family:Jost,sans-serif;font-size:.9rem;line-height:1.72;color:var(--muted);">
+          Answer the five questions to discover which LARAS signature reflects what you need most in this season of your life.
+        </p>
+        <div class="result-product">
+          <h4 id="productName">Four signatures. One place to start.</h4>
+          <p id="productText">Each scent is built around a different emotional truth: Jeda, Pulang, Temu Diri, and Rintik.</p>
+          <div class="notes" id="notesWrap">
+            <span class="note-chip">Pause</span>
+            <span class="note-chip">Comfort</span>
+            <span class="note-chip">Grounding</span>
+            <span class="note-chip">Renewal</span>
+          </div>
+        </div>
+        <div id="resultCta" style="display:none;margin-top:18px;flex-direction:column;gap:10px;">
+          <button class="btn btn-primary" onclick="openDrawer(window._resultKey)" style="width:100%;justify-content:center;">Explore this ritual →</button>
+          <button class="btn btn-secondary" onclick="openModal('signup')" style="width:100%;justify-content:center;">Save my result</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       INGREDIENT SPOTLIGHT
+  ════════════════════════════════════ -->
+  <section class="ingredients-section" id="ingredients">
+    <div class="shell">
+      <div class="ingredients-intro fade-up">
+        <div class="eyebrow">What's inside</div>
+        <h2>Rooted in Indonesian botanicals.</h2>
+        <p>Every LARAS ingredient is chosen for its emotional resonance as much as its scent — many sourced from specific islands and regions of Indonesia, where they've been used in traditional rituals for centuries.</p>
+      </div>
+      <div class="ingredients-grid">
+        <div class="ingredient-card fade-up">
+          <div class="ingredient-icon" style="background:rgba(243,236,226,.7);">🌸</div>
+          <div class="ingredient-origin">Java, Indonesia</div>
+          <div class="ingredient-name">Melati Jawa</div>
+          <div class="ingredient-local">Jasminum sambac</div>
+          <p class="ingredient-desc">The Javanese jasmine has been used in ceremonial offerings and bridal rituals for centuries. Soft, clean, and quietly sacred — it carries the weight of intention.</p>
+          <div class="ingredient-used">Found in Jeda</div>
+        </div>
+        <div class="ingredient-card fade-up d1">
+          <div class="ingredient-icon" style="background:rgba(85,103,75,.12);">🌿</div>
+          <div class="ingredient-origin">Aceh, Sumatra</div>
+          <div class="ingredient-name">Nilam</div>
+          <div class="ingredient-local">Pogostemon cablin</div>
+          <p class="ingredient-desc">Indonesian patchouli from Aceh is considered some of the world's finest. Deep, earthy, and grounding — it anchors the mind and slows the breath. A scent that asks you to arrive.</p>
+          <div class="ingredient-used">Found in Temu Diri</div>
+        </div>
+        <div class="ingredient-card fade-up d2">
+          <div class="ingredient-icon" style="background:rgba(184,116,55,.1);">🌾</div>
+          <div class="ingredient-origin">Nationwide, Indonesia</div>
+          <div class="ingredient-name">Pandan Wangi</div>
+          <div class="ingredient-local">Pandanus amaryllifolius</div>
+          <p class="ingredient-desc">Pandan is the scent of home in Indonesian cooking — warm, slightly sweet, unmistakably familiar. In Pulang, it carries the emotional memory of being somewhere safe and loved.</p>
+          <div class="ingredient-used">Found in Pulang</div>
+        </div>
+        <div class="ingredient-card fade-up d3">
+          <div class="ingredient-icon" style="background:rgba(142,164,174,.12);">🌱</div>
+          <div class="ingredient-origin">Java & Bali</div>
+          <div class="ingredient-name">Serai Wangi</div>
+          <div class="ingredient-local">Cymbopogon nardus</div>
+          <p class="ingredient-desc">Lemongrass from Java has a clean, bright quality that feels like movement — like the first real breath after a long time indoors. Uplifting without being loud, it's the opening note of renewal.</p>
+          <div class="ingredient-used">Found in Rintik</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       JOURNAL
+  ════════════════════════════════════ -->
+  <section class="journal-section" id="journal">
+    <div class="shell">
+      <div class="journal-header fade-up">
+        <div>
+          <div class="eyebrow">The Journal</div>
+          <h2>Words for the return.</h2>
+        </div>
+        <a href="#" onclick="openModal('signup');return false;">Read all stories →</a>
+      </div>
+      <div class="journal-grid">
+        <div class="journal-card fade-up" onclick="openModal('signup')">
+          <div class="journal-img journal-img-tall">
+            <img src="images/temu_diri_new.png" alt="On grounding">
+          </div>
+          <div class="journal-body">
+            <div class="journal-cat">Ritual</div>
+            <div class="journal-title">On grounding: why coming back to yourself is an act of courage</div>
+            <p class="journal-excerpt">In a culture that rewards productivity and visibility, choosing to slow down and reconnect with your inner self can feel almost transgressive.</p>
+            <div class="journal-meta">5 min read</div>
+          </div>
+        </div>
+        <div class="journal-card fade-up d1" onclick="openModal('signup')">
+          <div class="journal-img">
+            <img src="images/jeda_new.png" alt="The language of rest">
+          </div>
+          <div class="journal-body">
+            <div class="journal-cat">Ingredients</div>
+            <div class="journal-title">The Indonesian botanicals behind LARAS — and what they mean</div>
+            <p class="journal-excerpt">From Aceh nilam to Javanese melati — a guide to the plants, their origins, and the emotional stories they carry.</p>
+            <div class="journal-meta">7 min read</div>
+          </div>
+        </div>
+        <div class="journal-card fade-up d2" onclick="openModal('signup')">
+          <div class="journal-img">
+            <img src="images/rintik_new.png" alt="Starting again">
+          </div>
+          <div class="journal-body">
+            <div class="journal-cat">Story</div>
+            <div class="journal-title">Starting again, quietly: a meditation on the first rain</div>
+            <p class="journal-excerpt">Not every new beginning announces itself. Sometimes it arrives as a single drop — small, clean, and carrying everything that comes after.</p>
+            <div class="journal-meta">4 min read</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       TESTIMONIALS
+  ════════════════════════════════════ -->
+  <section class="testimonials-section">
+    <div class="shell">
+      <div class="testi-header fade-up">
+        <div class="eyebrow">What people are saying</div>
+        <h2>From women who found their ritual.</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card fade-up">
+          <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="testi-text">"I lit Temu Diri for the first time after a really hard week and something just shifted. I can't explain it — it smelled like coming back to myself."</p>
+          <div class="testi-meta">
+            <div class="testi-avatar">A</div>
+            <div>
+              <div class="testi-name">Andini R.</div>
+              <div class="testi-scent">Temu Diri</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card fade-up d1">
+          <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="testi-text">"The assessment surprised me — I thought I needed Jeda but it gave me Pulang, and it was exactly right. It understood something I hadn't said out loud."</p>
+          <div class="testi-meta">
+            <div class="testi-avatar">S</div>
+            <div>
+              <div class="testi-name">Sari W.</div>
+              <div class="testi-scent">Pulang</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card fade-up d2">
+          <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="testi-text">"Rintik has become part of my Sunday mornings. It doesn't smell like a candle — it smells like a decision to start fresh. That's rare."</p>
+          <div class="testi-meta">
+            <div class="testi-avatar">D</div>
+            <div>
+              <div class="testi-name">Dita M.</div>
+              <div class="testi-scent">Rintik</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       VISION
+  ════════════════════════════════════ -->
+  <section class="vision-section" id="vision">
+    <div class="shell footer-grid-inner">
+      <div class="fade-up">
+        <div class="eyebrow">Long-term vision</div>
+        <h2 style="font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:500;margin:0 0 14px;">Begin with candles. Grow into a ritual ecosystem.</h2>
+        <p style="font-family:Jost,sans-serif;font-size:.93rem;color:var(--muted);line-height:1.72;max-width:460px;">LARAS begins with curated scent recommendations, but the vision expands into a wider world of ritual products, assessments, gifting, and intentional self-connection.</p>
+      </div>
+      <div class="footer-card fade-up d2">
+        <h3>What comes next</h3>
+        <p>A ritual ecosystem built for the long return — to yourself, again and again.</p>
+        <ul>
+          <li>Personalized ritual profiles & saved assessment results</li>
+          <li>Discovery sets with care guides inside every box</li>
+          <li>Body oils, mists & guided ritual practices</li>
+          <li>A community of women choosing intentional self-care</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main><!-- /main -->
+
+<!-- ════════════════════════════════════
+     NEWSLETTER
+════════════════════════════════════ -->
+<section class="newsletter-section">
+  <div class="newsletter-inner fade-up">
+    <div class="eyebrow" style="color:rgba(201,168,130,.6);">Stay close</div>
+    <h2>Be the first to know.</h2>
+    <p>Early access to new collections, ritual guides, and the occasional quiet letter about what it means to return to yourself.</p>
+    <div class="newsletter-form">
+      <input class="newsletter-input" type="email" placeholder="your@email.com" id="newsletterEmail">
+      <button class="newsletter-btn" onclick="subscribeNewsletter()">Subscribe</button>
+    </div>
+    <p class="newsletter-note">No noise. You can unsubscribe any time.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     FULL SITE FOOTER
+════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="site-footer-grid">
+      <div class="sf-brand fade-up">
+        <div class="sf-brand-name">LARAS</div>
+        <p class="sf-brand-desc">Premium Indonesian ritual self-care. Rooted in balance, designed for the woman who wants to come back to herself — again and again.</p>
+        <div class="sf-social">
+          <button class="sf-social-btn" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </button>
+          <button class="sf-social-btn" aria-label="TikTok">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+          </button>
+          <button class="sf-social-btn" aria-label="Pinterest">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.03-2.83.19-.77 1.27-5.38 1.27-5.38s-.32-.65-.32-1.6c0-1.5.87-2.62 1.95-2.62.92 0 1.37.69 1.37 1.52 0 .93-.59 2.32-.9 3.61-.25 1.08.54 1.96 1.6 1.96 1.92 0 3.4-2.02 3.4-4.95 0-2.59-1.86-4.4-4.52-4.4-3.08 0-4.89 2.31-4.89 4.7 0 .93.36 1.93.8 2.47.09.11.1.2.07.31-.08.33-.26 1.08-.3 1.23-.05.2-.16.24-.37.15-1.39-.65-2.26-2.68-2.26-4.32 0-3.51 2.55-6.74 7.36-6.74 3.86 0 6.86 2.75 6.86 6.42 0 3.83-2.41 6.91-5.76 6.91-1.13 0-2.19-.59-2.55-1.28l-.69 2.58c-.25.96-.93 2.16-1.39 2.89.05.01.09.01.14.01C17.52 22 22 17.52 22 12S17.52 2 12 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sf-col fade-up d1">
+        <div class="sf-col-head">Collection</div>
+        <ul>
+          <li><a href="#scents" onclick="openDrawer('jeda')">Jeda — Pause</a></li>
+          <li><a href="#scents" onclick="openDrawer('temu')">Temu Diri — Return</a></li>
+          <li><a href="#scents" onclick="openDrawer('pulang')">Pulang — Comfort</a></li>
+          <li><a href="#scents" onclick="openDrawer('rintik')">Rintik — Renewal</a></li>
+          <li><a href="#sets">Ritual Bundle</a></li>
+          <li><a href="#sets">The Mini Set</a></li>
+        </ul>
+      </div>
+
+      <div class="sf-col fade-up d2">
+        <div class="sf-col-head">Discover</div>
+        <ul>
+          <li><a href="#assessment">Scent Assessment</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#ingredients">Our ingredients</a></li>
+          <li><a href="#journal">The Journal</a></li>
+          <li><a href="#story">Our story</a></li>
+          <li><a href="#vision">Vision</a></li>
+        </ul>
+      </div>
+
+      <div class="sf-col fade-up d3">
+        <div class="sf-col-head">Account & Help</div>
+        <ul>
+          <li><a href="#" onclick="openModal('signup');return false;">Join LARAS</a></li>
+          <li><a href="#" onclick="openModal('signin');return false;">Sign in</a></li>
+          <li><a href="#">Shipping & delivery</a></li>
+          <li><a href="#">Returns & exchanges</a></li>
+          <li><a href="#">Stockists</a></li>
+          <li><a href="#">Contact us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer-bottom">
+      <span class="sf-copy">© 2025 LARAS · Jakarta, Indonesia · All rights reserved</span>
+      <div class="sf-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Cookie Settings</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════
+     PRODUCT DRAWER
+════════════════════════════════════ -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<aside class="drawer" id="productDrawer" aria-label="Product details">
+  <div class="drawer-header">
+    <div class="drawer-scent-badge">
+      <div class="drawer-badge-dot" id="drawerDot"></div>
+      <span class="drawer-badge-name" id="drawerBadge">Laras Signature</span>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-img"><img id="drawerImg" src="" alt=""></div>
+    <div class="drawer-content">
+      <div class="drawer-name" id="drawerName"></div>
+      <div class="drawer-meaning" id="drawerMeaning"></div>
+      <div class="drawer-desc" id="drawerDesc"></div>
+      <div class="drawer-divider"></div>
+      <div class="drawer-row"><span class="drawer-row-label">Burn time</span><span class="drawer-row-val">45–55 hours</span></div>
+      <div class="drawer-row"><span class="drawer-row-label">Vessel</span><span class="drawer-row-val">Handcrafted ceramic, reusable</span></div>
+      <div class="drawer-row"><span class="drawer-row-label">Wax</span><span class="drawer-row-val">Natural coconut-soy blend</span></div>
+      <div class="drawer-row"><span class="drawer-row-label">Made in</span><span class="drawer-row-val">Jakarta, Indonesia</span></div>
+      <div class="drawer-notes-wrap">
+        <div class="drawer-notes-label">Scent notes</div>
+        <div class="drawer-notes" id="drawerNotes"></div>
+      </div>
+    </div>
+    <div class="drawer-ritual">
+      <div class="drawer-ritual-title">Your ritual guide</div>
+      <div class="drawer-ritual-steps" id="drawerRitualSteps"></div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-drawer-main" id="drawerWishBtn" onclick="addToWishlist()">
+      <svg width="16" height="16" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span id="drawerWishText">Save to my ritual list</span>
+    </button>
+    <button class="btn-drawer-sec" onclick="closeDrawer()">Continue exploring</button>
+  </div>
+</aside>
+
+<!-- toast notification -->
+<div id="toast" style="
+  position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--dark); color:#f4ede5;
+  padding:14px 24px; border-radius:999px;
+  font-family:Jost,sans-serif; font-size:.88rem;
+  box-shadow:0 12px 36px rgba(0,0,0,.25);
+  opacity:0; pointer-events:none; z-index:9000;
+  transition: opacity .3s, transform .3s;
+  display:flex; align-items:center; gap:10px;
+  white-space:nowrap;
+">
+  <svg width="14" height="14" viewBox="0 0 24 24" stroke="#b78852" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Saved to your ritual list</span>
+</div>
+
+<!-- ════════════════════════════════════
+     AUTH MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop" id="authModal" onclick="handleBgClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-head">
+      <div class="modal-logo">
+        <svg viewBox="0 0 40 46" fill="none">
+          <ellipse cx="20" cy="42" rx="13" ry="3.8" stroke="#b78852" stroke-width="1.25"/>
+          <ellipse cx="20" cy="30" rx="9.5" ry="6.5" stroke="#b78852" stroke-width="1.25"/>
+          <ellipse cx="20" cy="19" rx="6.5" ry="5.5" stroke="#b78852" stroke-width="1.25"/>
+          <ellipse cx="20" cy="9"  rx="3.8" ry="3.8" stroke="#b78852" stroke-width="1.25"/>
+        </svg>
+        <span>LARAS</span>
+      </div>
+      <h2 class="modal-title" id="modalTitle">Join LARAS</h2>
+      <p class="modal-subtitle" id="modalSubtitle">Save your ritual, track your scent journey, and receive early access to new collections.</p>
+    </div>
+    <div class="modal-body">
+      <div id="authError" style="display:none;background:rgba(180,60,60,.08);border:1px solid rgba(180,60,60,.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-family:Jost,sans-serif;font-size:.84rem;color:#b43c3c;"></div>
+      <div id="signupFields">
+        <div class="field"><label>Full Name</label><input id="signupName" type="text" placeholder="Your name"></div>
+        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="you@email.com"></div>
+        <div class="field"><label>Password</label><input id="signupPassword" type="password" placeholder="Create a password (6+ characters)"></div>
+      </div>
+      <div id="signinFields" style="display:none">
+        <div class="field"><label>Email</label><input id="signinEmail" type="email" placeholder="you@email.com"></div>
+        <div class="field"><label>Password</label><input id="signinPassword" type="password" placeholder="Your password"></div>
+        <div style="text-align:right;margin-top:-8px;margin-bottom:12px;">
+          <a id="forgotLink" style="font-family:Jost,sans-serif;font-size:.78rem;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</a>
+        </div>
+      </div>
+      <button class="modal-submit" id="modalSubmit" onclick="handleAuth()">Create My Account</button>
+      <div class="modal-toggle" id="modalToggle">Already have an account? <a onclick="openModal('signin')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     CART / WISHLIST PANEL
+════════════════════════════════════ -->
+<div class="drawer-backdrop" id="cartBackdrop" onclick="closeCart()" style="z-index:498;display:none;opacity:0;pointer-events:none;"></div>
+<aside id="cartPanel" style="
+  position:fixed;top:0;right:0;bottom:0;z-index:499;
+  width:min(420px,100vw);background:var(--panel);
+  box-shadow:-20px 0 80px rgba(42,31,24,.18);
+  transform:translateX(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;overflow:hidden;
+">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid var(--line);flex-shrink:0;">
+    <div>
+      <div style="font-family:Jost,sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Your Ritual List</div>
+      <div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--ink);" id="cartTitle">0 items saved</div>
+    </div>
+    <button class="drawer-close" onclick="closeCart()">
+      <svg viewBox="0 0 24 24" style="width:14px;stroke:currentColor;fill:none;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="cartItems" style="flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:14px;"></div>
+  <div id="cartEmpty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;">
+    <svg width="40" height="40" viewBox="0 0 24 24" stroke="var(--line)" fill="none" stroke-width="1" style="margin-bottom:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <p style="font-family:Jost,sans-serif;font-size:.92rem;color:var(--muted);margin:0 0 18px;line-height:1.65;">Your ritual list is empty.<br>Explore the collection and save what calls to you.</p>
+    <button class="btn btn-secondary" onclick="closeCart();document.getElementById('scents').scrollIntoView({behavior:'smooth'})">Explore Collection</button>
+  </div>
+  <div id="cartFooter" style="padding:20px 28px;border-top:1px solid var(--line);flex-shrink:0;display:none;flex-direction:column;gap:10px;">
+    <button class="btn-drawer-main" onclick="handleCartCheckout()" style="width:100%;justify-content:center;">
+      Notify me when available
+    </button>
+    <button class="btn-drawer-sec" onclick="closeCart()" style="width:100%;">Continue exploring</button>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════
+     FIREBASE + APP LOGIC
+════════════════════════════════════ -->
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+         signOut, onAuthStateChanged, sendPasswordResetEmail,
+         updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, updateDoc,
+         arrayUnion, arrayRemove, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+/* ══════════════════════════════════
+   🔧 PASTE YOUR FIREBASE CONFIG HERE
+   (Firebase Console → Project Settings → Your apps → SDK setup)
+══════════════════════════════════ */
+const firebaseConfig = {
+apiKey: "AIzaSyABltaib3Cr5p0GEf-iGdBk7wSb1d1fuPs",
+authDomain: "laras-indonesia.firebaseapp.com",
+projectId: "laras-indonesia",
+storageBucket: "laras-indonesia.firebasestorage.app",
+messagingSenderId: "14169433726",
+appId: "1:14169433726:web:4960756433b6b038825a2f"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ══════════════════════════════════
+   SCENT DATA (used throughout)
+══════════════════════════════════ */
+window.SCENTS = {
+  jeda:   { name:'Jeda',      meaning:'— pause · stillness · exhale',        dot:'#c9b8a2', badge:'Jeda — Pause',            img:'images/jeda_new.png',         price:'Rp 320.000', desc:'Jeda is a soft permission to stop. Not to fix anything, not to plan — just to exhale. Built around white jasmine from Java, delicate white tea, and warm Balinese sandalwood, it smells like the moment when you finally put everything down.', notes:['Melati Jawa','White Tea','Cendana Bali','White Musk'], ritual:['Find a quiet corner. Sit down before you light it.','Take three slow breaths as the flame settles. Let your shoulders drop.','For the next twenty minutes, do nothing that requires output. Just be in the room.','When you extinguish it, thank yourself for the pause.'], quizTitle:'You need Jeda', quizDesc:'Your answers point to deep exhaustion — the kind that lives underneath the surface. Jeda is a gentle invitation to stop. Not to fix anything. Just to exhale, soften, and take up less space in your own mind for a while.', quizNotes:['Melati Jawa','White Tea','Cendana Bali','Pause','Stillness','Softness'] },
+  temu:   { name:'Temu Diri', meaning:'— return · ground · clarity',          dot:'#55674b', badge:'Temu Diri — Return to Self', img:'images/temu_diri_new.png',    price:'Rp 320.000', desc:'You've been performing a version of yourself for a while now — and somewhere underneath it, the real you is waiting. Temu Diri is built from patchouli from Aceh, deep Indonesian vetiver, and the heady tuberose of sedap malam. A grounding ritual for the long return.', notes:['Nilam Aceh','Vetiver','Sedap Malam','Dark Amber'], ritual:['Light it in the evening, not as a routine — as a decision.','Write three things that are true about you right now, without judgment.','Sit with the scent. Let it remind you what grounded feels like.','Carry the feeling into the next morning.'], quizTitle:'You need Temu Diri', quizDesc:'You've been performing a version of yourself for a while now — and somewhere underneath it, the real you is waiting. Temu Diri is a grounding ritual for that return: slow, rooted, and honest. A quiet conversation with who you actually are.', quizNotes:['Nilam','Vetiver','Sedap Malam','Grounding','Reflection','Clarity'] },
+  pulang: { name:'Pulang',    meaning:'— home · warmth · memory',             dot:'#b87437', badge:'Pulang — Coming Home',      img:'images/pulang_new.png',       price:'Rp 320.000', desc:'There is something tender in what you're carrying — a quiet ache for warmth, for the familiar. Pulang is built around vanilla pandan, cinnamon, and kenanga flower: the smell of a kitchen you grew up in, of being somewhere that already knows you.', notes:['Vanilla Pandan','Kayu Manis','Kenanga','Coconut Milk'], ritual:['Light Pulang when you arrive home and need to fully arrive.','Make something warm to drink. Sit without your phone for ten minutes.','Let the scent be the signal: you are home. You are safe.','Use it to mark the transition from outside-self to inside-self.'], quizTitle:'You need Pulang', quizDesc:'There is something tender in what you're carrying — a quiet ache for warmth, for the familiar, for the feeling of being held without having to explain yourself. Pulang is that. The scent of coming home to somewhere that already knows you.', quizNotes:['Vanilla Pandan','Kayu Manis','Kenanga','Comfort','Memory','Home'] },
+  rintik: { name:'Rintik',    meaning:'— renewal · beginnings · lightness',   dot:'#8ea4ae', badge:'Rintik — First Rain',        img:'images/rintik_new.png',       price:'Rp 320.000', desc:'Rintik is the first drop of rain before a storm breaks. Built from serai (lemongrass), bergamot, and bamboo leaf — clean, light, and quietly alive. Not a dramatic change, just a soft opening. A beginning that doesn't ask too much.', notes:['Serai','Bergamot','Bamboo Leaf','Green Tea'], ritual:['Light Rintik in the morning when you want to start differently.','Open a window. Let the air move.','Write one small thing you want to begin — not achieve, just begin.','Let the scent carry the intention through your day.'], quizTitle:'You need Rintik', quizDesc:'Something in you is ready to move — not dramatically, but quietly. Like the first drop of rain before a storm breaks. Rintik carries that energy: a gentle shift, a soft opening, a beginning that doesn't ask too much of you.', quizNotes:['Serai','Bergamot','Bamboo Leaf','Renewal','Freshness','Lightness'] }
+};
+
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+let currentUser  = null;
+let userWishlist = [];   // array of scent keys e.g. ['jeda','temu']
+let currentMode  = 'signup';
+let unsubWishlist = null;
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; t.style.pointerEvents='all';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; t.style.pointerEvents='none'; }, 2800);
+}
+window.showToast = showToast;
+
+/* ══════════════════════════════════
+   NAV AUTH STATE — updates nav buttons
+══════════════════════════════════ */
+function updateNavAuth(user) {
+  const signinBtn  = document.getElementById('navSignin');
+  const joinBtn    = document.getElementById('navJoin');
+  const userMenu   = document.getElementById('navUserMenu');
+  const userNameEl = document.getElementById('navUserName');
+
+  if (user) {
+    signinBtn.style.display  = 'none';
+    joinBtn.style.display    = 'none';
+    userMenu.style.display   = 'flex';
+    userNameEl.textContent   = user.displayName ? user.displayName.split(' ')[0] : 'My Account';
+  } else {
+    signinBtn.style.display  = '';
+    joinBtn.style.display    = '';
+    userMenu.style.display   = 'none';
+  }
+}
+
+/* ══════════════════════════════════
+   WISHLIST — synced to Firestore
+══════════════════════════════════ */
+function subscribeWishlist(uid) {
+  if (unsubWishlist) unsubWishlist();
+  const ref = doc(db, 'users', uid);
+  unsubWishlist = onSnapshot(ref, snap => {
+    userWishlist = snap.exists() ? (snap.data().wishlist || []) : [];
+    updateWishlistUI();
+  });
+}
+
+function updateWishlistUI() {
+  // badge
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = userWishlist.length;
+  badge.classList.toggle('show', userWishlist.length > 0);
+  // drawer button if open
+  const key = window._currentDrawerKey;
+  if (key) {
+    const saved = userWishlist.includes(key);
+    const btn = document.getElementById('drawerWishBtn');
+    const txt = document.getElementById('drawerWishText');
+    txt.textContent = saved ? 'Saved ✓' : 'Save to my ritual list';
+    btn.style.background = saved ? 'var(--temu-c)' : '';
+  }
+  // cart panel
+  renderCartPanel();
+}
+
+async function toggleWishlist(key) {
+  if (!currentUser) { openModal('signup'); return; }
+  const ref  = doc(db, 'users', currentUser.uid);
+  const snap = await getDoc(ref);
+  const list = snap.exists() ? (snap.data().wishlist || []) : [];
+  if (list.includes(key)) {
+    await updateDoc(ref, { wishlist: arrayRemove(key) });
+    showToast(SCENTS[key].name + ' removed from your list');
+  } else {
+    if (!snap.exists()) await setDoc(ref, { wishlist: [key] }, { merge: true });
+    else await updateDoc(ref, { wishlist: arrayUnion(key) });
+    showToast(SCENTS[key].name + ' saved to your ritual list ♡');
+  }
+}
+window.toggleWishlist = toggleWishlist;
+
+/* ══════════════════════════════════
+   CART PANEL
+══════════════════════════════════ */
+function renderCartPanel() {
+  const items     = document.getElementById('cartItems');
+  const empty     = document.getElementById('cartEmpty');
+  const footer    = document.getElementById('cartFooter');
+  const titleEl   = document.getElementById('cartTitle');
+
+  titleEl.textContent = userWishlist.length === 0
+    ? 'Your ritual list'
+    : userWishlist.length + (userWishlist.length === 1 ? ' item saved' : ' items saved');
+
+  if (userWishlist.length === 0) {
+    items.style.display  = 'none';
+    empty.style.display  = 'flex';
+    footer.style.display = 'none';
+    return;
+  }
+  items.style.display  = 'flex';
+  empty.style.display  = 'none';
+  footer.style.display = 'flex';
+
+  items.innerHTML = userWishlist.map(key => {
+    const d = SCENTS[key];
+    return `
+      <div style="display:flex;gap:14px;align-items:center;padding:14px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);">
+        <img src="${d.img}" style="width:64px;height:64px;object-fit:cover;border-radius:12px;flex-shrink:0;" alt="${d.name}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Georgia,serif;font-size:1rem;color:var(--ink);margin-bottom:3px;">${d.name}</div>
+          <div style="font-family:Jost,sans-serif;font-size:.76rem;color:var(--accent);font-style:italic;">${d.meaning}</div>
+          <div style="font-family:Jost,sans-serif;font-size:.82rem;color:var(--muted);margin-top:4px;">${d.price}</div>
+        </div>
+        <button onclick="toggleWishlist('${key}')" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;transition:color .2s;" title="Remove">
+          <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+  }).join('');
+}
+
+function openCart() {
+  const backdrop = document.getElementById('cartBackdrop');
+  const panel    = document.getElementById('cartPanel');
+  backdrop.style.display = 'block';
+  requestAnimationFrame(()=>{
+    backdrop.style.opacity = '1'; backdrop.style.pointerEvents = 'all';
+    panel.style.transform  = 'translateX(0)';
+  });
+  document.body.style.overflow = 'hidden';
+  renderCartPanel();
+}
+function closeCart() {
+  const backdrop = document.getElementById('cartBackdrop');
+  const panel    = document.getElementById('cartPanel');
+  backdrop.style.opacity = '0'; backdrop.style.pointerEvents = 'none';
+  panel.style.transform  = 'translateX(100%)';
+  document.body.style.overflow = '';
+  setTimeout(()=>{ backdrop.style.display='none'; }, 400);
+}
+function handleCartCheckout() {
+  if (!currentUser) { closeCart(); openModal('signup'); return; }
+  showToast('We\'ll notify you when your ritual list is ready to order ✓');
+  closeCart();
+}
+window.openCart = openCart;
+window.closeCart = closeCart;
+window.handleCartCheckout = handleCartCheckout;
+
+/* ══════════════════════════════════
+   AUTH MODAL
+══════════════════════════════════ */
+function openModal(mode) {
+  currentMode = mode;
+  document.getElementById('authModal').classList.add('open');
+  document.getElementById('authError').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+  if (mode === 'signup') {
+    document.getElementById('modalTitle').textContent     = 'Join LARAS';
+    document.getElementById('modalSubtitle').textContent  = 'Save your ritual, track your scent journey, and receive early access to new collections.';
+    document.getElementById('signupFields').style.display = 'block';
+    document.getElementById('signinFields').style.display = 'none';
+    document.getElementById('modalSubmit').textContent    = 'Create My Account';
+    document.getElementById('modalToggle').innerHTML      = 'Already have an account? <a onclick="openModal(\'signin\')">Sign in</a>';
+  } else {
+    document.getElementById('modalTitle').textContent     = 'Welcome back.';
+    document.getElementById('modalSubtitle').textContent  = 'Sign in to access your ritual profile and saved collection.';
+    document.getElementById('signupFields').style.display = 'none';
+    document.getElementById('signinFields').style.display = 'block';
+    document.getElementById('modalSubmit').textContent    = 'Sign In';
+    document.getElementById('modalToggle').innerHTML      = 'New to LARAS? <a onclick="openModal(\'signup\')">Join us</a>';
+  }
+}
+function closeModal() {
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleBgClick(e) {
+  if (e.target === document.getElementById('authModal')) closeModal();
+}
+window.openModal  = openModal;
+window.closeModal = closeModal;
+window.handleBgClick = handleBgClick;
+
+async function handleAuth() {
+  const btn    = document.getElementById('modalSubmit');
+  const errEl  = document.getElementById('authError');
+  errEl.style.display = 'none';
+  btn.textContent = 'Please wait…';
+  btn.disabled    = true;
+
+  try {
+    if (currentMode === 'signup') {
+      const name  = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const pass  = document.getElementById('signupPassword').value;
+      if (!name)  throw { message: 'Please enter your full name.' };
+      if (!email) throw { message: 'Please enter your email address.' };
+      if (pass.length < 6) throw { message: 'Password must be at least 6 characters.' };
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+      // Create Firestore user doc
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        name, email, wishlist: [], createdAt: new Date().toISOString()
+      }, { merge: true });
+      btn.textContent = 'Welcome to LARAS ✓';
+      btn.style.background = '#55674b';
+      setTimeout(closeModal, 1500);
+    } else {
+      const email = document.getElementById('signinEmail').value.trim();
+      const pass  = document.getElementById('signinPassword').value;
+      await signInWithEmailAndPassword(auth, email, pass);
+      btn.textContent = 'Signed in ✓';
+      btn.style.background = '#55674b';
+      setTimeout(closeModal, 1200);
+    }
+  } catch(err) {
+    const msg = err.message || 'Something went wrong. Please try again.';
+    errEl.textContent    = msg.replace('Firebase: ','').replace(/\(auth\/[^)]+\)/,'').trim();
+    errEl.style.display  = 'block';
+    btn.textContent      = currentMode === 'signup' ? 'Create My Account' : 'Sign In';
+    btn.style.background = '';
+    btn.disabled         = false;
+  }
+}
+window.handleAuth = handleAuth;
+
+// Forgot password
+document.getElementById('forgotLink').addEventListener('click', async () => {
+  const email = document.getElementById('signinEmail').value.trim();
+  if (!email) { showToast('Enter your email above first'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('Reset link sent — check your inbox');
+  } catch(e) {
+    showToast('Could not send reset email. Check the address.');
+  }
+});
+
+// Sign out
+function handleSignOut() {
+  signOut(auth).then(()=>{ showToast('Signed out. See you soon.'); });
+}
+window.handleSignOut = handleSignOut;
+
+/* ══════════════════════════════════
+   AUTH STATE LISTENER
+══════════════════════════════════ */
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  updateNavAuth(user);
+  if (user) {
+    subscribeWishlist(user.uid);
+  } else {
+    if (unsubWishlist) { unsubWishlist(); unsubWishlist = null; }
+    userWishlist = [];
+    updateWishlistUI();
+  }
+});
+
+/* ══════════════════════════════════
+   DRAWER
+══════════════════════════════════ */
+window._currentDrawerKey = null;
+function openDrawer(key) {
+  window._currentDrawerKey = key;
+  const d = SCENTS[key];
+  document.getElementById('drawerDot').style.background = d.dot;
+  document.getElementById('drawerBadge').textContent    = d.badge;
+  document.getElementById('drawerImg').src              = d.img;
+  document.getElementById('drawerImg').alt              = d.name;
+  document.getElementById('drawerName').textContent     = d.name;
+  document.getElementById('drawerMeaning').textContent  = d.meaning;
+  document.getElementById('drawerDesc').textContent     = d.desc;
+
+  const saved = userWishlist.includes(key);
+  document.getElementById('drawerWishText').textContent = saved ? 'Saved ✓' : 'Save to my ritual list';
+  document.getElementById('drawerWishBtn').style.background = saved ? 'var(--temu-c)' : '';
+
+  const notesEl = document.getElementById('drawerNotes');
+  notesEl.innerHTML = '';
+  d.notes.forEach(n => { const s=document.createElement('span'); s.className='drawer-note'; s.textContent=n; notesEl.appendChild(s); });
+
+  const stepsEl = document.getElementById('drawerRitualSteps');
+  stepsEl.innerHTML = d.ritual.map((step,i)=>`
+    <div class="drawer-ritual-step">
+      <span class="drawer-ritual-step-num">${i+1}</span>
+      <p class="drawer-ritual-step-text">${step}</p>
+    </div>`).join('');
+
+  document.getElementById('productDrawer').querySelector('.drawer-body').scrollTop = 0;
+  document.getElementById('drawerBackdrop').classList.add('open');
+  document.getElementById('productDrawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('drawerBackdrop').classList.remove('open');
+  document.getElementById('productDrawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+window.openDrawer  = openDrawer;
+window.closeDrawer = closeDrawer;
+
+function addToWishlist() { toggleWishlist(window._currentDrawerKey); }
+window.addToWishlist = addToWishlist;
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeModal(); closeCart(); }
+});
+
+/* ══════════════════════════════════
+   QUIZ
+══════════════════════════════════ */
+document.getElementById('quizForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const fd = new FormData(this);
+  const sc = {jeda:0,pulang:0,temu:0,rintik:0};
+  for(const v of fd.values()) sc[v]++;
+  const q5 = fd.get('q5'); if(q5) sc[q5] += 0.5;
+  let winner='jeda', top=-1;
+  for(const k in sc) if(sc[k]>top){top=sc[k];winner=k;}
+
+  window._resultKey = winner;
+  const d = SCENTS[winner];
+  document.getElementById('resultTitle').textContent       = d.quizTitle;
+  document.getElementById('resultDescription').textContent = d.quizDesc;
+  document.getElementById('productName').textContent       = d.name + ' — ' + d.meaning.replace('— ','');
+  document.getElementById('productText').textContent       = d.desc.split('.')[0] + '.';
+  document.getElementById('progressFill').style.width      = '100%';
+  document.getElementById('progressCount').textContent     = '5 / 5';
+
+  const wrap = document.getElementById('notesWrap');
+  wrap.innerHTML = '';
+  d.quizNotes.forEach(n => { const s=document.createElement('span'); s.className='note-chip'; s.textContent=n; wrap.appendChild(s); });
+
+  document.getElementById('resultCta').style.display = 'flex';
+  document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // Save result to Firestore if signed in
+  if (currentUser) {
+    try {
+      await updateDoc(doc(db,'users',currentUser.uid), { lastAssessment: winner, assessmentDate: new Date().toISOString() });
+    } catch(_) {}
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('quizForm').reset();
+  document.getElementById('progressFill').style.width  = '0%';
+  document.getElementById('progressCount').textContent = '0 / 5';
+  document.getElementById('resultTitle').textContent   = 'Begin here.';
+  document.getElementById('resultDescription').textContent = 'Answer the five questions to discover which LARAS signature reflects what you need most in this season of your life.';
+  document.getElementById('productName').textContent   = 'Four signatures. One place to start.';
+  document.getElementById('productText').textContent   = 'Each scent is built around a different emotional truth: Jeda, Pulang, Temu Diri, and Rintik.';
+  document.getElementById('resultCta').style.display   = 'none';
+  document.getElementById('notesWrap').innerHTML       = ['Pause','Comfort','Grounding','Renewal'].map(n=>`<span class="note-chip">${n}</span>`).join('');
+  window._resultKey = null;
+});
+
+/* ══════════════════════════════════
+   NEWSLETTER
+══════════════════════════════════ */
+async function subscribeNewsletter() {
+  const el = document.getElementById('newsletterEmail');
+  if (!el.value || !el.value.includes('@')) { el.style.borderColor='rgba(183,136,82,.6)'; el.focus(); return; }
+  // Save email to Firestore newsletter collection
+  try {
+    await setDoc(doc(db,'newsletter',el.value.toLowerCase().trim()), {
+      email: el.value.toLowerCase().trim(), subscribedAt: new Date().toISOString()
+    });
+  } catch(_) {}
+  el.parentElement.innerHTML = '<p style="font-family:Jost,sans-serif;font-size:.9rem;color:rgba(244,237,229,.65);padding:14px 22px;margin:0;">You\'re on the list. We\'ll be in touch. ✓</p>';
+  showToast('Subscribed — thank you');
+}
+window.subscribeNewsletter = subscribeNewsletter;
+
+</script>
+
+<!-- ════════════════════════════════════
+     NON-FIREBASE UI LOGIC (cursor, nav, scroll, mobile)
+════════════════════════════════════ -->
+<script>
+/* ── CURSOR ── */
+const cur = document.getElementById('cur'), ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function loop(){ rx+=(mx-rx)*.13; ry+=(my-ry)*.13; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(loop); })();
+document.querySelectorAll('a,button,label,.scent-card,.ingredient-card,.journal-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ cur.classList.add('hov'); ring.classList.add('hov'); });
+  el.addEventListener('mouseleave',()=>{ cur.classList.remove('hov'); ring.classList.remove('hov'); });
+});
+
+/* ── NAV SCROLL SHADOW ── */
+window.addEventListener('scroll',()=>{ document.getElementById('siteHeader').classList.toggle('lifted',scrollY>40); });
+
+/* ── MOBILE NAV ── */
+function toggleMenu(){
+  const h=document.getElementById('hamburger'), n=document.getElementById('mobileNav');
+  h.classList.toggle('open'); n.classList.toggle('open');
+  document.body.style.overflow = n.classList.contains('open') ? 'hidden' : '';
+}
+window.toggleMenu = toggleMenu;
+
+/* ── SCROLL REVEAL ── */
+const rvObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('visible');rvObs.unobserve(e.target);} }),{threshold:.1});
+document.querySelectorAll('.fade-up').forEach(el=>rvObs.observe(el));
+
+/* ── QUIZ PROGRESS ── */
+document.querySelectorAll('.option input').forEach(inp=>{
+  inp.addEventListener('change',()=>{
+    const fd=new FormData(document.getElementById('quizForm'));
+    const n=[...fd.values()].length;
+    document.getElementById('progressFill').style.width=(n/5*100)+'%';
+    document.getElementById('progressCount').textContent=n+' / 5';
+  });
+});
+</script>
+</body>
+</html>
