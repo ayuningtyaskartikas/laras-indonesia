@@ -956,40 +956,69 @@
     .fade-up.d3 { transition-delay: .3s; } .fade-up.d4 { transition-delay: .42s; }
 
     /* ═══════════════════════════════════════
-       RESPONSIVE
-    ═══════════════════════════════════════ */
-    @media (max-width: 980px) {
-      .hero-grid, .two-col, .assessment-grid, .footer-grid-inner { grid-template-columns: 1fr; }
-      .result-box { position: static; min-height: auto; }
-      .collection-track { grid-template-columns: repeat(2,1fr); }
-      .how-steps { grid-template-columns: 1fr; }
-      .testi-grid { grid-template-columns: 1fr; }
-      .ingredients-grid { grid-template-columns: repeat(2,1fr); }
-      .journal-grid { grid-template-columns: 1fr; }
-      .site-footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-      .hero-candle-float { width: 80px; bottom: 20px; right: 20px; }
-    }
-    @media (max-width: 680px) {
-      .ingredients-grid { grid-template-columns: 1fr 1fr; }
-      .site-footer-grid { grid-template-columns: 1fr; gap: 28px; }
-      .sf-brand-desc { max-width: 100%; }
-      .site-footer-bottom { flex-direction: column; text-align: center; }
-    }
-    @media (max-width: 640px) {
-      .shell { width: min(calc(100% - 32px), 1180px); }
-      .hero { padding: 48px 0 36px; }
-      .panel, .quote-box, .result-box, .quiz-wrap { padding: 22px 20px; }
-      .hero-card { padding: 26px; min-height: auto; }
-      .hero h1 { font-size: 2.5rem; }
-      .collection-track { grid-template-columns: 1fr 1fr; }
-      .newsletter-form { flex-direction: column; border-radius: var(--radius-sm); }
-      .newsletter-input { padding: 14px 18px; }
-      .newsletter-btn { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
-      .footer-bar-inner { flex-direction: column; text-align: center; gap: 10px; }
-      .footer-links-bar { flex-wrap: wrap; justify-content: center; }
-    }
+   IMPROVED RESPONSIVE FIXES
+      ═══════════════════════════════════════ */
+
+      @media (max-width: 980px) {
+        .hero-grid, .two-col, .assessment-grid, .footer-grid-inner { 
+          grid-template-columns: 1fr; 
+        }
+        .hero-card { 
+          min-height: 400px; /* Give it some height back on tablets */
+        }
+        .collection-track { 
+          grid-template-columns: repeat(2, 1fr); 
+          min-width: 100%; /* Fixes the horizontal overflow shake */
+        }
+        /* ... keep your existing toggle logic ... */
+      }
+
+      @media (max-width: 680px) {
+        /* Change ingredients to 1 column so text isn't squashed */
+        .ingredients-grid { 
+          grid-template-columns: 1fr; 
+        }
+        
+        /* Make the hero title punchy but not overwhelming */
+        .hero h1 { 
+          font-size: 2.8rem; 
+          line-height: 1.1;
+        }
+        
+        /* Prevent the collection from having a min-width on tiny screens */
+        .collection-track {
+          grid-template-columns: 1fr;
+          min-width: 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        /* Ensure the shell (container) doesn't get too close to the edge */
+        .shell { 
+          width: calc(100% - 32px); 
+        }
+
+        /* Make buttons easier to tap on mobile */
+        .btn-row {
+          flex-direction: column;
+        }
+        .btn {
+          width: 100%;
+          padding: 16px 26px; /* Larger tap area */
+        }
+
+        /* Fix the Quiz options: text can be long, so allow vertical growth */
+        .option label {
+          padding: 16px;
+          font-size: 0.95rem;
+        }
+
+        /* Ensure the mobile nav covers exactly what it should */
+        .mobile-nav {
+          padding: 24px 20px;
+          height: calc(100vh - 74px); /* Full height minus header */
+        }
+      }
   </style>
 </head>
 <body>
