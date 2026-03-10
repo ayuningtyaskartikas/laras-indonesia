@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <title>LARAS | Find Your Balance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1716,19 +1715,43 @@
       <p class="modal-subtitle" id="modalSubtitle">Save your ritual, track your scent journey, and receive early access to new collections.</p>
     </div>
     <div class="modal-body">
-      <div id="authError" style="display:none;background:rgba(180,60,60,.08);border:1px solid rgba(180,60,60,.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-family:Jost,sans-serif;font-size:.84rem;color:#b43c3c;"></div>
+      <!-- error box — shows full message, not just a dot -->
+      <div id="authError" style="display:none;background:rgba(180,60,60,.08);border:1px solid rgba(180,60,60,.2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-family:Jost,sans-serif;font-size:.83rem;color:#b43c3c;line-height:1.5;"></div>
+
       <div id="signupFields">
-        <div class="field"><label>Full Name</label><input id="signupName" type="text" placeholder="Your name"></div>
-        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="you@email.com"></div>
-        <div class="field"><label>Password</label><input id="signupPassword" type="password" placeholder="Create a password (6+ characters)"></div>
+        <div class="field"><label>Full Name</label><input id="signupName" type="text" placeholder="Your name" autocomplete="name"></div>
+        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+        <div class="field">
+          <label>Password</label>
+          <div style="position:relative;">
+            <input id="signupPassword" type="password" placeholder="Create a password (6+ characters)" autocomplete="new-password" style="width:100%;padding-right:44px;">
+            <button type="button" onclick="togglePw('signupPassword','signupEye')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);display:flex;align-items:center;" aria-label="Show password">
+              <svg id="signupEye" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
+
       <div id="signinFields" style="display:none">
-        <div class="field"><label>Email</label><input id="signinEmail" type="email" placeholder="you@email.com"></div>
-        <div class="field"><label>Password</label><input id="signinPassword" type="password" placeholder="Your password"></div>
-        <div style="text-align:right;margin-top:-8px;margin-bottom:12px;">
+        <div class="field"><label>Email</label><input id="signinEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+        <div class="field">
+          <label>Password</label>
+          <div style="position:relative;">
+            <input id="signinPassword" type="password" placeholder="Your password" autocomplete="current-password" style="width:100%;padding-right:44px;">
+            <button type="button" onclick="togglePw('signinPassword','signinEye')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);display:flex;align-items:center;" aria-label="Show password">
+              <svg id="signinEye" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:-4px;margin-bottom:12px;">
           <a id="forgotLink" style="font-family:Jost,sans-serif;font-size:.78rem;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</a>
         </div>
       </div>
+
       <button class="modal-submit" id="modalSubmit" onclick="handleAuth()">Create My Account</button>
       <div class="modal-toggle" id="modalToggle">Already have an account? <a onclick="openModal('signin')">Sign in</a></div>
     </div>
@@ -2034,9 +2057,10 @@ function handleAuth() {
     auth.createUserWithEmailAndPassword(email, pass)
       .then(function(cred) {
         return cred.user.updateProfile({ displayName: name }).then(function() {
-          return db.collection('users').doc(cred.user.uid).set({
+          // non-blocking — auth succeeds even if Firestore write fails
+          db.collection('users').doc(cred.user.uid).set({
             name: name, email: email, wishlist: [], createdAt: new Date().toISOString()
-          }, { merge: true });
+          }, { merge: true }).catch(function(e) { console.warn('Firestore write failed:', e.message); });
         });
       })
       .then(function() {
@@ -2068,11 +2092,42 @@ function handleAuth() {
 }
 
 function cleanFirebaseError(msg) {
-  return (msg || 'Something went wrong. Please try again.')
+  msg = (msg || 'Something went wrong. Please try again.')
     .replace('Firebase: ', '')
     .replace(/\(auth\/[^)]+\)/, '')
     .replace('Error ', '')
     .trim();
+  // Make Firebase errors human-friendly
+  if (msg.includes('email-already-in-use') || msg.includes('already in use'))
+    return 'An account with this email already exists. Try signing in instead.';
+  if (msg.includes('invalid-email') || msg.includes('badly formatted'))
+    return 'Please enter a valid email address.';
+  if (msg.includes('wrong-password') || msg.includes('invalid-credential') || msg.includes('INVALID_LOGIN_CREDENTIALS'))
+    return 'Incorrect email or password. Please try again.';
+  if (msg.includes('user-not-found'))
+    return 'No account found with this email. Try joining LARAS instead.';
+  if (msg.includes('too-many-requests'))
+    return 'Too many attempts. Please wait a moment and try again.';
+  if (msg.includes('network-request-failed'))
+    return 'Network error. Please check your connection and try again.';
+  if (msg.includes('weak-password'))
+    return 'Password is too weak. Please use at least 6 characters.';
+  return msg;
+}
+
+function togglePw(inputId, eyeId) {
+  var input = document.getElementById(inputId);
+  var eye   = document.getElementById(eyeId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    // show "eye off" icon when visible
+    eye.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>'
+      + '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>'
+      + '<line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type = 'password';
+    eye.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
 }
 
 function handleSignOut() {
