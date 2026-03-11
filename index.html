@@ -1029,6 +1029,7 @@
         <span style="font-family:Jost,sans-serif;font-size:.84rem;color:var(--muted);">Hi, <strong id="navUserName" style="color:var(--ink);font-weight:500;"></strong></span>
         <button class="btn-nav btn-ghost" onclick="handleSignOut()" style="padding:7px 16px;font-size:.76rem;">Sign out</button>
       </div>
+      <button class="btn-nav btn-ghost" id="langToggle" onclick="toggleLang()" style="min-width:52px;">EN</button>
       <button class="cart-btn" id="cartBtn" onclick="openCart()" aria-label="Ritual list">
         <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span class="cart-badge" id="cartBadge">0</span>
@@ -2301,6 +2302,531 @@ document.querySelectorAll('.option input').forEach(function(inp) {
     document.getElementById('progressCount').textContent = vals.length + ' / 5';
   });
 });
+/* ── LANGUAGE TOGGLE ── */
+var currentLang = 'en';
+
+var translations = {
+  en: {
+    // NAV
+    navHow: 'How it works', navCollection: 'Collection', navAssessment: 'Assessment',
+    navIngredients: 'Ingredients', navJournal: 'Journal',
+    signinBtn: 'Sign in', joinBtn: 'Join LARAS',
+
+    // MARQUEE
+    marquee1: 'Jeda — Pause', marquee2: 'Pulang — Comfort',
+    marquee3: 'Temu Diri — Return to Self', marquee4: 'Rintik — Renewal',
+    marquee5: 'Locally-rooted ritual self-care',
+
+    // HERO
+    heroEyebrow: 'Premium Indonesian ritual self-care',
+    heroH1: 'Find the scent that feels like your story.',
+    heroP: 'LARAS helps you choose more intentional self-care through a guided scent assessment rooted in balance, emotional needs, and Indonesian-inspired ritual.',
+    heroCta1: 'Take the assessment', heroCta2: 'Explore the collection',
+    heroCardEyebrow: 'What LARAS means',
+    heroCardH3: 'Balance, harmony, and being in tune.',
+    heroCardP: 'Laras is the Indonesian word for being aligned, grounded, and in tune with yourself — not just resting, but truly returning.',
+    heroRitualEyebrow: 'Start with intention',
+    heroRitualH3: 'Not just a candle. A ritual of return.',
+    heroRitualP: 'Four signatures, each built around a different emotional need. Take the assessment to find yours — or explore all four.',
+
+    // HOW IT WORKS
+    howEyebrow: 'The Ritual', howH2: 'Three steps to your ritual.',
+    howP: "LARAS isn't a product you buy once. It's a practice you return to — guided by where you actually are, not where you think you should be.",
+    howStep1H: 'Take the assessment',
+    howStep1P: "Five honest questions about how you're actually feeling. Not how you want to feel — how you are. Your answers map to one of four emotional states.",
+    howStep2H: 'Receive your signature',
+    howStep2P: 'We recommend the LARAS scent that best reflects your emotional need right now — with a personal description of why it fits this season of your life.',
+    howStep3H: 'Begin your ritual',
+    howStep3P: 'Each candle arrives with a ritual guide — a simple, intentional practice for lighting it. Not a routine, but a return. A moment that belongs only to you.',
+
+    // COLLECTION
+    collectionEyebrow: 'The Collection',
+    collectionH2: 'Four signatures, four emotional truths.',
+    collectionSubP: 'Click any scent to explore its full ritual profile.',
+    viewLabel: 'View ritual profile →',
+
+    // RITUAL SETS
+    setsEyebrow: 'Ritual Sets',
+    setsH2: 'Curated for giving — or keeping.',
+    bundleNum: 'Complete Collection', bundleName: 'The Ritual Bundle',
+    bundleTagline: 'All four signatures. The full emotional range of LARAS.',
+    miniNum: 'Discovery Set', miniName: 'The Mini Set',
+    miniTagline: 'Three signatures to begin your ritual.',
+    notifyLabel: 'Notify me when available →',
+
+    // ASSESSMENT
+    assessEyebrow: 'Scent Assessment',
+    assessH2: 'What do you need most right now?',
+    assessSubP: 'Five questions. Answer honestly — not with who you want to be, but with who you are today.',
+    progressLabel: 'Your progress',
+    q1: 'When you wake up in the morning, your first feeling is usually —',
+    q1a: 'Tired before the day has even started',
+    q1b: 'A quiet longing — for something warm and familiar',
+    q1c: "Disconnected, like I'm going through the motions",
+    q1d: 'Restless — like something needs to change',
+    q2: 'The emotion you carry most quietly right now is —',
+    q2a: "Exhaustion — the kind that sleep doesn't fix",
+    q2b: 'A low, tender ache — grief, nostalgia, or loneliness',
+    q2c: 'A sense of being lost — unsure of who I am right now',
+    q2d: "Frustration — I feel stuck and can't move forward",
+    q3: 'The kind of space that feels most healing to you —',
+    q3a: 'Soft, quiet, still — a place with no demands',
+    q3b: "Warm and familiar — like someone's kitchen or childhood home",
+    q3c: 'Grounded and earthy — a forest floor, a quiet garden',
+    q3d: 'Open and clean — cool air, wide sky, room to breathe',
+    q4: 'If your body could speak right now, it would ask for —',
+    q4a: 'Permission to do nothing at all',
+    q4b: 'To be held — physically, emotionally, unconditionally',
+    q4c: 'To feel like itself again — anchored and present',
+    q4d: 'Movement — a shift, a release, something new',
+    q5: 'In this season of your life, you are most seeking —',
+    q5a: 'Rest — deep, genuine, guiltless rest',
+    q5b: 'Comfort — warmth, safety, and emotional ease',
+    q5c: 'Clarity — a return to myself, my values, my centre',
+    q5d: 'Renewal — a fresh chapter, a light beginning',
+    quizSubmitBtn: 'See my recommendation', quizResetBtn: 'Reset',
+    resultTag: 'Your recommendation',
+    resultDefaultTitle: 'Begin here.',
+    resultDefaultDesc: 'Answer the five questions to discover which LARAS signature reflects what you need most in this season of your life.',
+    resultDefaultProduct: 'Four signatures. One place to start.',
+    resultDefaultText: 'Each scent is built around a different emotional truth: Jeda, Pulang, Temu Diri, and Rintik.',
+
+    // INGREDIENTS
+    ingEyebrow: 'What\'s inside',
+    ingH2: 'Rooted in Indonesian botanicals.',
+    ingP: "Every LARAS ingredient is chosen for its emotional resonance as much as its scent — many sourced from specific islands and regions of Indonesia, where they've been used in traditional rituals for centuries.",
+    ing1Origin: 'Java, Indonesia', ing1Name: 'Melati Jawa', ing1Local: 'Jasminum sambac',
+    ing1Desc: 'The Javanese jasmine has been used in ceremonial offerings and bridal rituals for centuries. Soft, clean, and quietly sacred — it carries the weight of intention.',
+    ing1Used: 'Found in Jeda',
+    ing2Origin: 'Aceh, Sumatra', ing2Name: 'Nilam', ing2Local: 'Pogostemon cablin',
+    ing2Desc: "Indonesian patchouli from Aceh is considered some of the world's finest. Deep, earthy, and grounding — it anchors the mind and slows the breath. A scent that asks you to arrive.",
+    ing2Used: 'Found in Temu Diri',
+    ing3Origin: 'Nationwide, Indonesia', ing3Name: 'Pandan Wangi', ing3Local: 'Pandanus amaryllifolius',
+    ing3Desc: 'Pandan is the scent of home in Indonesian cooking — warm, slightly sweet, unmistakably familiar. In Pulang, it carries the emotional memory of being somewhere safe and loved.',
+    ing3Used: 'Found in Pulang',
+    ing4Origin: 'Java & Bali', ing4Name: 'Serai Wangi', ing4Local: 'Cymbopogon nardus',
+    ing4Desc: "Lemongrass from Java has a clean, bright quality that feels like movement — like the first real breath after a long time indoors. Uplifting without being loud, it's the opening note of renewal.",
+    ing4Used: 'Found in Rintik',
+
+    // JOURNAL
+    journalEyebrow: 'The Journal', journalH2: 'Words for the return.',
+    journalReadAll: 'Read all stories →',
+    j1Cat: 'Ritual', j1Title: 'On grounding: why coming back to yourself is an act of courage',
+    j1Excerpt: 'In a culture that rewards productivity and visibility, choosing to slow down and reconnect with your inner self can feel almost transgressive.',
+    j1Meta: '5 min read',
+    j2Cat: 'Ingredients', j2Title: 'The Indonesian botanicals behind LARAS — and what they mean',
+    j2Excerpt: 'From Aceh nilam to Javanese melati — a guide to the plants, their origins, and the emotional stories they carry.',
+    j2Meta: '7 min read',
+    j3Cat: 'Story', j3Title: 'Starting again, quietly: a meditation on the first rain',
+    j3Excerpt: 'Not every new beginning announces itself. Sometimes it arrives as a single drop — small, clean, and carrying everything that comes after.',
+    j3Meta: '4 min read',
+
+    // TESTIMONIALS
+    testiEyebrow: 'What people are saying',
+    testiH2: 'From women who found their ritual.',
+    testi1: '"I lit Temu Diri for the first time after a really hard week and something just shifted. I can\'t explain it — it smelled like coming back to myself."',
+    testi2: '"The assessment surprised me — I thought I needed Jeda but it gave me Pulang, and it was exactly right. It understood something I hadn\'t said out loud."',
+    testi3: '"Rintik has become part of my Sunday mornings. It doesn\'t smell like a candle — it smells like a decision to start fresh. That\'s rare."',
+
+    // VISION
+    visionEyebrow: 'Long-term vision',
+    visionH2: 'Begin with candles. Grow into a ritual ecosystem.',
+    visionP: 'LARAS begins with curated scent recommendations, but the vision expands into a wider world of ritual products, assessments, gifting, and intentional self-connection.',
+    visionCardH3: 'What comes next',
+    visionCardP: 'A ritual ecosystem built for the long return — to yourself, again and again.',
+    visionLi1: 'Personalized ritual profiles & saved assessment results',
+    visionLi2: 'Discovery sets with care guides inside every box',
+    visionLi3: 'Body oils, mists & guided ritual practices',
+    visionLi4: 'A community of women choosing intentional self-care',
+
+    // NEWSLETTER
+    newsEyebrow: 'Stay close', newsH2: 'Be the first to know.',
+    newsP: 'Early access to new collections, ritual guides, and the occasional quiet letter about what it means to return to yourself.',
+    newsPlaceholder: 'your@email.com', newsBtn: 'Subscribe',
+    newsNote: 'No noise. You can unsubscribe any time.',
+
+    // FOOTER
+    sfDesc: 'Premium Indonesian ritual self-care. Rooted in balance, designed for the woman who wants to come back to herself — again and again.',
+    sfColCollection: 'Collection', sfColDiscover: 'Discover', sfColAccount: 'Account & Help',
+    sfAssessment: 'Scent Assessment', sfHow: 'How it works',
+    sfIngredients: 'Our ingredients', sfJournal: 'The Journal', sfVision: 'Vision',
+    sfJoin: 'Join LARAS', sfSignin: 'Sign in',
+    sfShipping: 'Shipping & delivery', sfReturns: 'Returns & exchanges',
+    sfStockists: 'Stockists', sfContact: 'Contact us',
+    sfCopy: '© 2025 LARAS · Jakarta, Indonesia · All rights reserved',
+    sfPrivacy: 'Privacy Policy', sfTerms: 'Terms of Use', sfCookies: 'Cookie Settings',
+  },
+
+  id: {
+    // NAV
+    navHow: 'Cara kerja', navCollection: 'Koleksi', navAssessment: 'Penilaian',
+    navIngredients: 'Bahan', navJournal: 'Jurnal',
+    signinBtn: 'Masuk', joinBtn: 'Gabung LARAS',
+
+    // MARQUEE
+    marquee1: 'Jeda — Jeda Sejenak', marquee2: 'Pulang — Kenyamanan',
+    marquee3: 'Temu Diri — Kembali ke Diri', marquee4: 'Rintik — Pembaruan',
+    marquee5: 'Perawatan diri ritual berakar lokal',
+
+    // HERO
+    heroEyebrow: 'Perawatan diri ritual Indonesia premium',
+    heroH1: 'Temukan aroma yang terasa seperti ceritamu.',
+    heroP: 'LARAS membantu kamu memilih perawatan diri yang lebih bermakna melalui penilaian aroma yang berakar pada keseimbangan, kebutuhan emosional, dan ritual terinspirasi Indonesia.',
+    heroCta1: 'Mulai penilaian', heroCta2: 'Jelajahi koleksi',
+    heroCardEyebrow: 'Arti LARAS',
+    heroCardH3: 'Seimbang, harmonis, dan selaras.',
+    heroCardP: 'Laras adalah kata dalam bahasa Indonesia yang berarti selaras, membumi, dan sesuai dengan dirimu sendiri — bukan sekadar beristirahat, tapi benar-benar kembali.',
+    heroRitualEyebrow: 'Mulai dengan niat',
+    heroRitualH3: 'Bukan sekadar lilin. Sebuah ritual untuk kembali.',
+    heroRitualP: 'Empat signature, masing-masing dibangun di sekitar kebutuhan emosional yang berbeda. Ikuti penilaian untuk menemukan milikmu — atau jelajahi keempatnya.',
+
+    // HOW IT WORKS
+    howEyebrow: 'Ritualnya', howH2: 'Tiga langkah menuju ritualmu.',
+    howP: 'LARAS bukan produk yang kamu beli sekali. Ini adalah praktik yang selalu kamu kembali — dipandu oleh di mana kamu sebenarnya berada, bukan di mana kamu pikir kamu seharusnya berada.',
+    howStep1H: 'Ikuti penilaian',
+    howStep1P: 'Lima pertanyaan jujur tentang perasaanmu saat ini. Bukan bagaimana kamu ingin merasa — tapi bagaimana kamu sebenarnya. Jawabanmu memetakan salah satu dari empat keadaan emosional.',
+    howStep2H: 'Terima signature-mu',
+    howStep2P: 'Kami merekomendasikan aroma LARAS yang paling mencerminkan kebutuhan emosionalmu saat ini — dengan deskripsi personal mengapa cocok untuk musim hidupmu ini.',
+    howStep3H: 'Mulai ritualmu',
+    howStep3P: 'Setiap lilin hadir dengan panduan ritual — praktik sederhana dan penuh niat untuk menyalakannya. Bukan rutinitas, tapi sebuah kepulangan. Momen yang hanya milikmu.',
+
+    // COLLECTION
+    collectionEyebrow: 'Koleksi',
+    collectionH2: 'Empat signature, empat kebenaran emosional.',
+    collectionSubP: 'Klik aroma mana saja untuk menjelajahi profil ritualnya.',
+    viewLabel: 'Lihat profil ritual →',
+
+    // RITUAL SETS
+    setsEyebrow: 'Set Ritual',
+    setsH2: 'Dikurasi untuk hadiah — atau untuk dirimu sendiri.',
+    bundleNum: 'Koleksi Lengkap', bundleName: 'The Ritual Bundle',
+    bundleTagline: 'Keempat signature. Keseluruhan rentang emosional LARAS.',
+    miniNum: 'Set Perkenalan', miniName: 'The Mini Set',
+    miniTagline: 'Tiga signature untuk memulai ritualmu.',
+    notifyLabel: 'Beritahu saya saat tersedia →',
+
+    // ASSESSMENT
+    assessEyebrow: 'Penilaian Aroma',
+    assessH2: 'Apa yang paling kamu butuhkan sekarang?',
+    assessSubP: 'Lima pertanyaan. Jawab dengan jujur — bukan siapa yang ingin kamu jadi, tapi siapa dirimu hari ini.',
+    progressLabel: 'Kemajuanmu',
+    q1: 'Saat bangun tidur, perasaan pertamamu biasanya —',
+    q1a: 'Lelah sebelum hari bahkan dimulai',
+    q1b: 'Kerinduan yang tenang — akan sesuatu yang hangat dan familiar',
+    q1c: 'Tidak terhubung, seperti menjalani hari secara otomatis',
+    q1d: 'Gelisah — seperti ada sesuatu yang perlu berubah',
+    q2: 'Emosi yang paling diam-diam kamu bawa saat ini adalah —',
+    q2a: 'Kelelahan — yang tidak bisa diperbaiki dengan tidur',
+    q2b: 'Rasa sakit yang lembut dan rendah — duka, nostalgia, atau kesepian',
+    q2c: 'Rasa tersesat — tidak yakin siapa aku sekarang',
+    q2d: 'Frustrasi — aku merasa terjebak dan tidak bisa maju',
+    q3: 'Jenis ruang yang paling menyembuhkan bagimu —',
+    q3a: 'Lembut, tenang, diam — tempat tanpa tuntutan',
+    q3b: 'Hangat dan familiar — seperti dapur seseorang atau rumah masa kecil',
+    q3c: 'Membumi dan alami — lantai hutan, kebun yang tenang',
+    q3d: 'Terbuka dan bersih — udara sejuk, langit luas, ruang untuk bernapas',
+    q4: 'Jika tubuhmu bisa berbicara sekarang, ia akan meminta —',
+    q4a: 'Izin untuk tidak melakukan apa pun',
+    q4b: 'Untuk dipeluk — secara fisik, emosional, tanpa syarat',
+    q4c: 'Untuk merasa seperti dirinya lagi — terjangkar dan hadir',
+    q4d: 'Gerakan — pergeseran, pelepasan, sesuatu yang baru',
+    q5: 'Di musim hidupmu ini, kamu paling mencari —',
+    q5a: 'Istirahat — istirahat yang dalam, tulus, dan tanpa rasa bersalah',
+    q5b: 'Kenyamanan — kehangatan, keamanan, dan kemudahan emosional',
+    q5c: 'Kejernihan — kembali ke diriku, nilai-nilaiku, pusatku',
+    q5d: 'Pembaruan — babak baru, awal yang ringan',
+    quizSubmitBtn: 'Lihat rekomendasi saya', quizResetBtn: 'Ulangi',
+    resultTag: 'Rekomendasimu',
+    resultDefaultTitle: 'Mulai dari sini.',
+    resultDefaultDesc: 'Jawab lima pertanyaan untuk menemukan signature LARAS mana yang mencerminkan apa yang paling kamu butuhkan di musim hidupmu ini.',
+    resultDefaultProduct: 'Empat signature. Satu tempat untuk memulai.',
+    resultDefaultText: 'Setiap aroma dibangun di sekitar kebenaran emosional yang berbeda: Jeda, Pulang, Temu Diri, dan Rintik.',
+
+    // INGREDIENTS
+    ingEyebrow: 'Apa yang ada di dalamnya',
+    ingH2: 'Berakar pada tanaman botani Indonesia.',
+    ingP: 'Setiap bahan LARAS dipilih karena resonansi emosionalnya sama seperti aromanya — banyak yang bersumber dari pulau dan wilayah tertentu di Indonesia, di mana mereka telah digunakan dalam ritual tradisional selama berabad-abad.',
+    ing1Origin: 'Jawa, Indonesia', ing1Name: 'Melati Jawa', ing1Local: 'Jasminum sambac',
+    ing1Desc: 'Melati Jawa telah digunakan dalam persembahan upacara dan ritual pernikahan selama berabad-abad. Lembut, bersih, dan diam-diam sakral — ia membawa bobot niat.',
+    ing1Used: 'Terdapat dalam Jeda',
+    ing2Origin: 'Aceh, Sumatra', ing2Name: 'Nilam', ing2Local: 'Pogostemon cablin',
+    ing2Desc: 'Nilam Indonesia dari Aceh dianggap salah satu yang terbaik di dunia. Dalam, alami, dan membumi — ia menambatkan pikiran dan memperlambat napas. Aroma yang memintamu untuk hadir.',
+    ing2Used: 'Terdapat dalam Temu Diri',
+    ing3Origin: 'Seluruh Indonesia', ing3Name: 'Pandan Wangi', ing3Local: 'Pandanus amaryllifolius',
+    ing3Desc: 'Pandan adalah aroma rumah dalam masakan Indonesia — hangat, sedikit manis, sangat familiar. Dalam Pulang, ia membawa kenangan emosional berada di tempat yang aman dan dicintai.',
+    ing3Used: 'Terdapat dalam Pulang',
+    ing4Origin: 'Jawa & Bali', ing4Name: 'Serai Wangi', ing4Local: 'Cymbopogon nardus',
+    ing4Desc: 'Serai dari Jawa memiliki kualitas yang bersih dan cerah yang terasa seperti gerakan — seperti napas pertama yang nyata setelah lama di dalam ruangan. Menyegarkan tanpa keras, ini adalah nada pembuka pembaruan.',
+    ing4Used: 'Terdapat dalam Rintik',
+
+    // JOURNAL
+    journalEyebrow: 'Jurnal', journalH2: 'Kata-kata untuk kepulangan.',
+    journalReadAll: 'Baca semua cerita →',
+    j1Cat: 'Ritual', j1Title: 'Tentang membumi: mengapa kembali ke diri sendiri adalah tindakan keberanian',
+    j1Excerpt: 'Dalam budaya yang menghargai produktivitas dan visibilitas, memilih untuk melambat dan terhubung kembali dengan diri batin bisa terasa hampir bertentangan.',
+    j1Meta: '5 menit baca',
+    j2Cat: 'Bahan', j2Title: 'Tanaman botani Indonesia di balik LARAS — dan apa artinya',
+    j2Excerpt: 'Dari nilam Aceh hingga melati Jawa — panduan tentang tanaman, asal-usulnya, dan kisah emosional yang mereka bawa.',
+    j2Meta: '7 menit baca',
+    j3Cat: 'Cerita', j3Title: 'Memulai lagi, dengan tenang: meditasi tentang hujan pertama',
+    j3Excerpt: 'Tidak setiap awal baru mengumumkan dirinya. Kadang ia datang sebagai satu tetes — kecil, bersih, dan membawa segalanya yang datang setelahnya.',
+    j3Meta: '4 menit baca',
+
+    // TESTIMONIALS
+    testiEyebrow: 'Apa kata mereka',
+    testiH2: 'Dari perempuan yang menemukan ritualnya.',
+    testi1: '"Aku menyalakan Temu Diri untuk pertama kalinya setelah minggu yang sangat berat dan sesuatu bergeser. Aku tidak bisa menjelaskannya — aromanya seperti kembali ke diriku sendiri."',
+    testi2: '"Penilaiannya mengejutkanku — aku pikir aku butuh Jeda tapi hasilnya Pulang, dan itu tepat sekali. Ia memahami sesuatu yang belum aku ucapkan."',
+    testi3: '"Rintik sudah menjadi bagian dari pagi Minggu saya. Aromanya tidak seperti lilin — aromanya seperti keputusan untuk memulai baru. Itu langka."',
+
+    // VISION
+    visionEyebrow: 'Visi jangka panjang',
+    visionH2: 'Mulai dengan lilin. Berkembang menjadi ekosistem ritual.',
+    visionP: 'LARAS dimulai dengan rekomendasi aroma yang dikurasi, tetapi visinya berkembang ke dunia produk ritual yang lebih luas, penilaian, hadiah, dan koneksi diri yang penuh niat.',
+    visionCardH3: 'Apa yang akan datang',
+    visionCardP: 'Ekosistem ritual yang dibangun untuk kepulangan panjang — ke dirimu sendiri, lagi dan lagi.',
+    visionLi1: 'Profil ritual personal & hasil penilaian yang tersimpan',
+    visionLi2: 'Set perkenalan dengan panduan perawatan di setiap kotak',
+    visionLi3: 'Minyak tubuh, mist & praktik ritual terpandu',
+    visionLi4: 'Komunitas perempuan yang memilih perawatan diri yang penuh niat',
+
+    // NEWSLETTER
+    newsEyebrow: 'Tetap dekat', newsH2: 'Jadilah yang pertama tahu.',
+    newsP: 'Akses awal ke koleksi baru, panduan ritual, dan sesekali surat tenang tentang apa artinya kembali ke dirimu sendiri.',
+    newsPlaceholder: 'email@kamu.com', newsBtn: 'Berlangganan',
+    newsNote: 'Tanpa gangguan. Kamu bisa berhenti berlangganan kapan saja.',
+
+    // FOOTER
+    sfDesc: 'Perawatan diri ritual Indonesia premium. Berakar pada keseimbangan, dirancang untuk perempuan yang ingin kembali ke dirinya sendiri — lagi dan lagi.',
+    sfColCollection: 'Koleksi', sfColDiscover: 'Temukan', sfColAccount: 'Akun & Bantuan',
+    sfAssessment: 'Penilaian Aroma', sfHow: 'Cara kerja',
+    sfIngredients: 'Bahan kami', sfJournal: 'Jurnal', sfVision: 'Visi',
+    sfJoin: 'Gabung LARAS', sfSignin: 'Masuk',
+    sfShipping: 'Pengiriman & pengantaran', sfReturns: 'Pengembalian & penukaran',
+    sfStockists: 'Stokis', sfContact: 'Hubungi kami',
+    sfCopy: '© 2025 LARAS · Jakarta, Indonesia · Hak cipta dilindungi',
+    sfPrivacy: 'Kebijakan Privasi', sfTerms: 'Syarat Penggunaan', sfCookies: 'Pengaturan Cookie',
+  }
+};
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'id' : 'en';
+  document.getElementById('langToggle').textContent = currentLang.toUpperCase();
+  applyTranslations();
+}
+
+function applyTranslations() {
+  var t = translations[currentLang];
+
+  // NAV
+  var navLinks = document.querySelectorAll('.nav-links a');
+  navLinks[0].textContent = t.navHow;
+  navLinks[1].textContent = t.navCollection;
+  navLinks[2].textContent = t.navAssessment;
+  navLinks[3].textContent = t.navIngredients;
+  navLinks[4].textContent = t.navJournal;
+  document.getElementById('navSignin').textContent = t.signinBtn;
+  document.getElementById('navJoin').textContent = t.joinBtn;
+
+  // MARQUEE
+  var mi = document.querySelectorAll('.strip-item');
+  var mTexts = [t.marquee1, t.marquee2, t.marquee3, t.marquee4, t.marquee5,
+                t.marquee1, t.marquee2, t.marquee3, t.marquee4, t.marquee5];
+  mi.forEach(function(el, i) { el.textContent = mTexts[i] || el.textContent; });
+
+  // HERO
+  var heroSection = document.querySelector('.hero');
+  heroSection.querySelector('.eyebrow').textContent = t.heroEyebrow;
+  heroSection.querySelector('h1').textContent = t.heroH1;
+  heroSection.querySelector('p').textContent = t.heroP;
+  var heroBtns = heroSection.querySelectorAll('.btn-row .btn');
+  heroBtns[0].textContent = t.heroCta1;
+  heroBtns[1].textContent = t.heroCta2;
+  var heroCardEyebrows = document.querySelectorAll('.hero-card .eyebrow');
+  heroCardEyebrows[0].textContent = t.heroCardEyebrow;
+  heroCardEyebrows[1].textContent = t.heroRitualEyebrow;
+  var heroCardH3s = document.querySelectorAll('.hero-card h3');
+  heroCardH3s[0].textContent = t.heroCardH3;
+  heroCardH3s[1].textContent = t.heroRitualH3;
+  var heroCardPs = document.querySelectorAll('.hero-card .micro');
+  heroCardPs[0].textContent = t.heroCardP;
+  heroCardPs[1].textContent = t.heroRitualP;
+
+  // HOW IT WORKS
+  var howSection = document.querySelector('.how-section');
+  howSection.querySelector('.how-eyebrow').textContent = t.howEyebrow;
+  howSection.querySelector('.how-inner h2').textContent = t.howH2;
+  howSection.querySelector('.how-inner p').textContent = t.howP;
+  var howSteps = howSection.querySelectorAll('.how-step');
+  howSteps[0].querySelector('h3').textContent = t.howStep1H;
+  howSteps[0].querySelector('p').textContent = t.howStep1P;
+  howSteps[1].querySelector('h3').textContent = t.howStep2H;
+  howSteps[1].querySelector('p').textContent = t.howStep2P;
+  howSteps[2].querySelector('h3').textContent = t.howStep3H;
+  howSteps[2].querySelector('p').textContent = t.howStep3P;
+
+  // COLLECTION
+  var collSection = document.querySelector('.collection-section');
+  collSection.querySelector('.eyebrow').textContent = t.collectionEyebrow;
+  collSection.querySelector('.collection-header h2').textContent = t.collectionH2;
+  collSection.querySelector('.collection-header p').textContent = t.collectionSubP;
+  document.querySelectorAll('.scent-view-label').forEach(function(el) {
+    el.textContent = t.viewLabel;
+  });
+
+  // RITUAL SETS
+  var setsSection = document.querySelector('.sets-section');
+  setsSection.querySelector('.eyebrow').textContent = t.setsEyebrow;
+  setsSection.querySelector('h2').textContent = t.setsH2;
+  var setCards = setsSection.querySelectorAll('.scent-card');
+  setCards[0].querySelector('.scent-num').textContent = t.bundleNum;
+  setCards[0].querySelector('.scent-name').textContent = t.bundleName;
+  setCards[0].querySelector('.scent-tagline').textContent = t.bundleTagline;
+  setCards[1].querySelector('.scent-num').textContent = t.miniNum;
+  setCards[1].querySelector('.scent-name').textContent = t.miniName;
+  setCards[1].querySelector('.scent-tagline').textContent = t.miniTagline;
+  setsSection.querySelectorAll('.scent-view-label').forEach(function(el) {
+    el.textContent = t.notifyLabel;
+  });
+
+  // ASSESSMENT
+  var assessSection = document.querySelector('#assessment');
+  assessSection.querySelector('.eyebrow').textContent = t.assessEyebrow;
+  assessSection.querySelector('.quiz-wrap h2').textContent = t.assessH2;
+  assessSection.querySelector('.quiz-wrap .micro').textContent = t.assessSubP;
+  assessSection.querySelector('.progress-label span').textContent = t.progressLabel;
+  var qTitles = assessSection.querySelectorAll('.question-title');
+  qTitles[0].textContent = '1. ' + t.q1;
+  qTitles[1].textContent = '2. ' + t.q2;
+  qTitles[2].textContent = '3. ' + t.q3;
+  qTitles[3].textContent = '4. ' + t.q4;
+  qTitles[4].textContent = '5. ' + t.q5;
+  document.querySelector('label[for="q1a"]').childNodes[1].textContent = t.q1a;
+  document.querySelector('label[for="q1b"]').childNodes[1].textContent = t.q1b;
+  document.querySelector('label[for="q1c"]').childNodes[1].textContent = t.q1c;
+  document.querySelector('label[for="q1d"]').childNodes[1].textContent = t.q1d;
+  document.querySelector('label[for="q2a"]').childNodes[1].textContent = t.q2a;
+  document.querySelector('label[for="q2b"]').childNodes[1].textContent = t.q2b;
+  document.querySelector('label[for="q2c"]').childNodes[1].textContent = t.q2c;
+  document.querySelector('label[for="q2d"]').childNodes[1].textContent = t.q2d;
+  document.querySelector('label[for="q3a"]').childNodes[1].textContent = t.q3a;
+  document.querySelector('label[for="q3b"]').childNodes[1].textContent = t.q3b;
+  document.querySelector('label[for="q3c"]').childNodes[1].textContent = t.q3c;
+  document.querySelector('label[for="q3d"]').childNodes[1].textContent = t.q3d;
+  document.querySelector('label[for="q4a"]').childNodes[1].textContent = t.q4a;
+  document.querySelector('label[for="q4b"]').childNodes[1].textContent = t.q4b;
+  document.querySelector('label[for="q4c"]').childNodes[1].textContent = t.q4c;
+  document.querySelector('label[for="q4d"]').childNodes[1].textContent = t.q4d;
+  document.querySelector('label[for="q5a"]').childNodes[1].textContent = t.q5a;
+  document.querySelector('label[for="q5b"]').childNodes[1].textContent = t.q5b;
+  document.querySelector('label[for="q5c"]').childNodes[1].textContent = t.q5c;
+  document.querySelector('label[for="q5d"]').childNodes[1].textContent = t.q5d;
+  document.querySelector('#quizForm .btn-primary').textContent = t.quizSubmitBtn;
+  document.getElementById('resetBtn').textContent = t.quizResetBtn;
+  document.querySelector('.result-tag').textContent = t.resultTag;
+  if (document.getElementById('resultTitle').textContent === translations[currentLang === 'en' ? 'id' : 'en'].resultDefaultTitle || 
+      document.getElementById('resultTitle').textContent === translations['en'].resultDefaultTitle ||
+      document.getElementById('resultTitle').textContent === translations['id'].resultDefaultTitle) {
+    document.getElementById('resultTitle').textContent = t.resultDefaultTitle;
+    document.getElementById('resultDescription').textContent = t.resultDefaultDesc;
+    document.getElementById('productName').textContent = t.resultDefaultProduct;
+    document.getElementById('productText').textContent = t.resultDefaultText;
+  }
+
+  // INGREDIENTS
+  var ingSection = document.querySelector('.ingredients-section');
+  ingSection.querySelector('.eyebrow').textContent = t.ingEyebrow;
+  ingSection.querySelector('.ingredients-intro h2').textContent = t.ingH2;
+  ingSection.querySelector('.ingredients-intro p').textContent = t.ingP;
+  var ingCards = ingSection.querySelectorAll('.ingredient-card');
+  var ingData = [
+    [t.ing1Origin, t.ing1Name, t.ing1Local, t.ing1Desc, t.ing1Used],
+    [t.ing2Origin, t.ing2Name, t.ing2Local, t.ing2Desc, t.ing2Used],
+    [t.ing3Origin, t.ing3Name, t.ing3Local, t.ing3Desc, t.ing3Used],
+    [t.ing4Origin, t.ing4Name, t.ing4Local, t.ing4Desc, t.ing4Used],
+  ];
+  ingCards.forEach(function(card, i) {
+    card.querySelector('.ingredient-origin').textContent = ingData[i][0];
+    card.querySelector('.ingredient-name').textContent = ingData[i][1];
+    card.querySelector('.ingredient-local').textContent = ingData[i][2];
+    card.querySelector('.ingredient-desc').textContent = ingData[i][3];
+    card.querySelector('.ingredient-used').textContent = ingData[i][4];
+  });
+
+  // JOURNAL
+  var journalSection = document.querySelector('.journal-section');
+  journalSection.querySelector('.eyebrow').textContent = t.journalEyebrow;
+  journalSection.querySelector('.journal-header h2').textContent = t.journalH2;
+  journalSection.querySelector('.journal-header a').textContent = t.journalReadAll;
+  var jCards = journalSection.querySelectorAll('.journal-card');
+  var jData = [
+    [t.j1Cat, t.j1Title, t.j1Excerpt, t.j1Meta],
+    [t.j2Cat, t.j2Title, t.j2Excerpt, t.j2Meta],
+    [t.j3Cat, t.j3Title, t.j3Excerpt, t.j3Meta],
+  ];
+  jCards.forEach(function(card, i) {
+    card.querySelector('.journal-cat').textContent = jData[i][0];
+    card.querySelector('.journal-title').textContent = jData[i][1];
+    card.querySelector('.journal-excerpt').textContent = jData[i][2];
+    card.querySelector('.journal-meta').textContent = jData[i][3];
+  });
+
+  // TESTIMONIALS
+  var testiSection = document.querySelector('.testimonials-section');
+  testiSection.querySelector('.eyebrow').textContent = t.testiEyebrow;
+  testiSection.querySelector('.testi-header h2').textContent = t.testiH2;
+  var testiTexts = testiSection.querySelectorAll('.testi-text');
+  testiTexts[0].textContent = t.testi1;
+  testiTexts[1].textContent = t.testi2;
+  testiTexts[2].textContent = t.testi3;
+
+  // VISION
+  var visionSection = document.querySelector('.vision-section');
+  visionSection.querySelector('.eyebrow').textContent = t.visionEyebrow;
+  visionSection.querySelector('h2').textContent = t.visionH2;
+  visionSection.querySelector('p').textContent = t.visionP;
+  visionSection.querySelector('.footer-card h3').textContent = t.visionCardH3;
+  visionSection.querySelector('.footer-card p').textContent = t.visionCardP;
+  var visionLis = visionSection.querySelectorAll('.footer-card li');
+  visionLis[0].textContent = t.visionLi1;
+  visionLis[1].textContent = t.visionLi2;
+  visionLis[2].textContent = t.visionLi3;
+  visionLis[3].textContent = t.visionLi4;
+
+  // NEWSLETTER
+  var newsSection = document.querySelector('.newsletter-section');
+  newsSection.querySelector('.eyebrow').textContent = t.newsEyebrow;
+  newsSection.querySelector('h2').textContent = t.newsH2;
+  newsSection.querySelector('p').textContent = t.newsP;
+  document.getElementById('newsletterEmail').placeholder = t.newsPlaceholder;
+  newsSection.querySelector('.newsletter-btn').textContent = t.newsBtn;
+  newsSection.querySelector('.newsletter-note').textContent = t.newsNote;
+
+  // FOOTER
+  var sf = document.querySelector('.site-footer');
+  sf.querySelector('.sf-brand-desc').textContent = t.sfDesc;
+  var sfColHeads = sf.querySelectorAll('.sf-col-head');
+  sfColHeads[0].textContent = t.sfColCollection;
+  sfColHeads[1].textContent = t.sfColDiscover;
+  sfColHeads[2].textContent = t.sfColAccount;
+  var sfLinks = sf.querySelectorAll('.sf-col a');
+  sfLinks[6].textContent = t.sfAssessment;
+  sfLinks[7].textContent = t.sfHow;
+  sfLinks[8].textContent = t.sfIngredients;
+  sfLinks[9].textContent = t.sfJournal;
+  sfLinks[10].textContent = t.sfVision;
+  sfLinks[11].textContent = t.sfJoin;
+  sfLinks[12].textContent = t.sfSignin;
+  sfLinks[13].textContent = t.sfShipping;
+  sfLinks[14].textContent = t.sfReturns;
+  sfLinks[15].textContent = t.sfStockists;
+  sfLinks[16].textContent = t.sfContact;
+  sf.querySelector('.sf-copy').textContent = t.sfCopy;
+  var sfLegalLinks = sf.querySelectorAll('.sf-legal a');
+  sfLegalLinks[0].textContent = t.sfPrivacy;
+  sfLegalLinks[1].textContent = t.sfTerms;
+  sfLegalLinks[2].textContent = t.sfCookies;
+}
 </script>
 </body>
 </html>
